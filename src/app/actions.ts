@@ -28,8 +28,15 @@ export async function generateReview(
   language: string = "ja"
 ) {
   // レート制限チェック
-  const headersList = await headers();
-  const clientIP = getClientIP(headersList);
+  let clientIP = "unknown";
+  try {
+    const headersList = await headers();
+    clientIP = getClientIP(headersList);
+  } catch (error) {
+    console.warn("⚠️ Could not get client IP, using fallback");
+    // IPが取得できない場合はレート制限をスキップ（開発環境対応）
+  }
+
   const rateLimitResult = checkRateLimit(clientIP, 3, 60000); // 1分間に3回まで
 
   if (!rateLimitResult.success) {
