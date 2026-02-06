@@ -10,7 +10,7 @@ if (!apiKey) {
   throw new Error("API key is not configured. Please contact the administrator.");
 }
 
-console.log("✅ API Key loaded:", apiKey.substring(0, 10) + "...");
+console.log("✅ API Key loaded");
 
 const genAI = new GoogleGenerativeAI(apiKey); 
 
@@ -24,7 +24,7 @@ export async function generateReview(
   language: string = "ja"
 ) {
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.5-flash",
+    model: "gemini-2.0-flash", // 1日1,500リクエストまで使える無料モデル
     generationConfig: {
       temperature: 0.9,
       maxOutputTokens: 2048, // 十分な余裕を確保
