@@ -21,26 +21,92 @@ export default function ReviewBooster() {
   const [visitType, setVisitType] = useState("地元");
   const [review, setReview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // ボタンが押されたらAIを呼ぶ関数
   const handleGenerate = async () => {
     setLoading(true);
+    setReview(""); // 前の結果をクリア
+    
     try {
       const text = await generateReview(keywords, staff, rating, companion, gender, visitType, language);
       setReview(text);
-    } catch (error) {
-      console.error(error);
-      const errorMsg = language === "ja" 
-        ? "ごめん！AIがちょっと疲れてるみたい。もう一回試して！"
-        : "Oops! The AI is taking a break. Please try again!";
+      
+      // 🎯 UX改善：生成完了後に結果エリアまで自動スクロール
+      setTimeout(() => {
+        const resultElement = document.getElementById('review-result');
+        if (resultElement) {
+          resultElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    } catch (error: any) {
+      console.error("口コミ生成エラー:", error);
+      
+      // より詳細なエラーメッセージ
+      let errorMsg = "";
+      if (error?.message?.includes("API key")) {
+        errorMsg = language === "ja"
+          ? "⚠️ API設定エラー\n管理者に連絡してください。"
+          : "⚠️ API Configuration Error\nPlease contact the administrator.";
+      } else if (error?.message?.includes("fetch") || error?.message?.includes("network")) {
+        errorMsg = language === "ja"
+          ? "⚠️ ネットワークエラー\nインターネット接続を確認してください。"
+          : "⚠️ Network Error\nPlease check your internet connection.";
+      } else if (error?.message?.includes("timeout")) {
+        errorMsg = language === "ja"
+          ? "⚠️ タイムアウト\n時間がかかりすぎています。もう一度試してください。"
+          : "⚠️ Timeout\nTaking too long. Please try again.";
+      } else {
+        errorMsg = language === "ja"
+          ? `⚠️ エラーが発生しました\n${error?.message || "もう一度試してください。"}`
+          : `⚠️ An error occurred\n${error?.message || "Please try again."}`;
+      }
+      
       alert(errorMsg);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // コピーしてGoogleマップを開く関数
-  const handleCopyAndGo = () => {
-    navigator.clipboard.writeText(review);
+  const handleCopyAndGo = async () => {
+    let copySuccess = false;
+    
+    try {
+      // モダンブラウザ向け
+      await navigator.clipboard.writeText(review);
+      copySuccess = true;
+    } catch (err) {
+      // フォールバック：古いブラウザや制限の厳しい環境向け
+      const textArea = document.createElement('textarea');
+      textArea.value = review;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        copySuccess = document.execCommand('copy');
+      } catch (err2) {
+        console.error('コピー失敗:', err2);
+      }
+      document.body.removeChild(textArea);
+    }
+    
+    if (copySuccess) {
+      // コピー成功のフィードバック
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      // コピー失敗時の警告
+      const msg = language === "ja" 
+        ? "⚠️ 自動コピーできませんでした。\n口コミを手動でコピーしてから投稿してください。"
+        : "⚠️ Auto-copy failed.\nPlease copy the review manually before posting.";
+      alert(msg);
+    }
+    
+    // Google Mapsを開く
     window.open(REVIEW_URL, "_blank");
   };
 
@@ -246,16 +312,32 @@ export default function ReviewBooster() {
 
         {/* 7. 結果表示エリア */}
         {review && (
-          <Card className="p-4 bg-gray-900/90 border-cyan-500/50 space-y-4 animate-in fade-in zoom-in duration-300 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
+          <Card id="review-result" className="p-4 bg-gray-900/90 border-cyan-500/50 space-y-4 animate-in fade-in zoom-in duration-300 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
             <Textarea 
               value={review} 
               onChange={(e) => setReview(e.target.value)}
               className="bg-black/50 border-gray-700 text-white h-32 text-base leading-relaxed p-3 rounded-lg focus:ring-cyan-500"
             />
-            <Button onClick={handleCopyAndGo} className="w-full py-6 text-lg font-bold bg-white text-black hover:bg-gray-200 rounded-xl shadow-lg">
-              <Copy className="mr-2 h-5 w-5" /> 
-              {language === "ja" ? "コピーして投稿画面へ" : "Copy & Post on Google"}
-              <ExternalLink className="ml-2 h-4 w-4" />
+            <Button 
+              onClick={handleCopyAndGo} 
+              className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${
+                copied 
+                  ? "bg-green-500 text-white" 
+                  : "bg-white text-black hover:bg-gray-200"
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Copy className="mr-2 h-5 w-5" /> 
+                  {language === "ja" ? "✅ コピー完了！" : "✅ Copied!"}
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 h-5 w-5" /> 
+                  {language === "ja" ? "コピーして投稿画面へ" : "Copy & Post on Google"}
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </>
+              )}
             </Button>
             <p className="text-[10px] text-center text-gray-400">
               {language === "ja" 

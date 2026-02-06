@@ -6,8 +6,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
-  throw new Error("GEMINI_API_KEY が設定されていません。.env.local ファイルを確認してください。");
+  console.error("❌ GEMINI_API_KEY が設定されていません");
+  throw new Error("API key is not configured. Please contact the administrator.");
 }
+
+console.log("✅ API Key loaded:", apiKey.substring(0, 10) + "...");
 
 const genAI = new GoogleGenerativeAI(apiKey); 
 
@@ -127,22 +130,38 @@ Write ONE complete review following the rules above for a **${companionText} ${v
 2. End with a complete sentence! Use closings like "Coming back!", "Highly recommend!", "See you soon!" etc.`;
 
     try {
+      console.log("🔄 Generating review (EN)...", { companion: companionText, gender: genderEn, visitType: visitTypeEn });
+      
       const result = await model.generateContent(prompt);
+      
+      if (!result || !result.response) {
+        throw new Error("AI response is empty. Please try again.");
+      }
+      
       const text = result.response.text();
       
-      console.log("Generated review (EN):", text);
+      console.log("✅ Generated review (EN):", text);
       console.log("Text length:", text.length);
-      console.log("Settings:", { companion: companionText, gender: genderEn, visitType: visitTypeEn, keywords, hasStaff, language });
       
       const trimmedText = text.trim();
       if (trimmedText.length < 60) {
-        console.warn("Generated text is too short:", trimmedText);
+        console.warn("⚠️ Generated text is too short:", trimmedText);
+        throw new Error("Generated review is too short. Please try again.");
       }
       
       return trimmedText;
-    } catch (error) {
-      console.error("Review generation error:", error);
-      throw error;
+    } catch (error: any) {
+      console.error("❌ Review generation error (EN):", error);
+      
+      if (error?.message?.includes("API key")) {
+        throw new Error("API key configuration error. Please contact support.");
+      } else if (error?.message?.includes("quota")) {
+        throw new Error("API quota exceeded. Please try again later.");
+      } else if (error?.message?.includes("timeout") || error?.message?.includes("ECONNREFUSED")) {
+        throw new Error("Network timeout. Please check your connection and try again.");
+      }
+      
+      throw new Error(error?.message || "Failed to generate review. Please try again.");
     }
   }
   
@@ -182,22 +201,37 @@ ${companion === "恋人" && keywords.includes("時間無制限飲み放題") ? `
 【超重要】文章は必ず完結させること！「また行く！」「おすすめ！」などの締めの言葉で終わること。途中で終わるのは絶対NG！！！`;
 
   try {
+    console.log("🔄 Generating review (JA)...", { companion, gender, visitType });
+    
     const result = await model.generateContent(prompt);
+    
+    if (!result || !result.response) {
+      throw new Error("AIの応答が空です。もう一度試してください。");
+    }
+    
     const text = result.response.text();
     
-    console.log("Generated review:", text);
+    console.log("✅ Generated review (JA):", text);
     console.log("Text length:", text.length);
-    console.log("Settings:", { companion, gender, visitType, keywords, hasStaff });
     
-    // 文章が途中で終わっていないかチェック（簡易版）
     const trimmedText = text.trim();
     if (trimmedText.length < 80) {
-      console.warn("生成されたテキストが短すぎます:", trimmedText);
+      console.warn("⚠️ 生成されたテキストが短すぎます:", trimmedText);
+      throw new Error("生成された口コミが短すぎます。もう一度試してください。");
     }
     
     return trimmedText;
-  } catch (error) {
-    console.error("口コミ生成エラー:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("❌ 口コミ生成エラー (JA):", error);
+    
+    if (error?.message?.includes("API key")) {
+      throw new Error("API設定エラー。サポートに連絡してください。");
+    } else if (error?.message?.includes("quota")) {
+      throw new Error("API使用制限に達しました。しばらく待ってから再試行してください。");
+    } else if (error?.message?.includes("timeout") || error?.message?.includes("ECONNREFUSED")) {
+      throw new Error("ネットワークタイムアウト。接続を確認してもう一度試してください。");
+    }
+    
+    throw new Error(error?.message || "口コミの生成に失敗しました。もう一度試してください。");
   }
 }
