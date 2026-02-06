@@ -1,8 +1,6 @@
 "use server";
 
 import OpenAI from "openai";
-import { headers } from "next/headers";
-import { checkRateLimit, getClientIP } from "@/lib/rateLimit";
 
 // 環境変数からAPIキーを安全に読み込む
 const apiKey = process.env.OPENAI_API_KEY;
@@ -18,6 +16,37 @@ const openai = new OpenAI({
   apiKey: apiKey,
 });
 
+// シンプルなレート制限（メモリベース）
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+// クリーンアップ
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of rateLimitMap.entries()) {
+    if (now > value.resetTime) {
+      rateLimitMap.delete(key);
+    }
+  }
+}, 60000);
+
+function checkSimpleRateLimit(identifier: string): { success: boolean; waitSeconds: number } {
+  const now = Date.now();
+  const entry = rateLimitMap.get(identifier);
+  
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + 60000 });
+    return { success: true, waitSeconds: 0 };
+  }
+  
+  if (entry.count >= 3) {
+    const waitSeconds = Math.ceil((entry.resetTime - now) / 1000);
+    return { success: false, waitSeconds };
+  }
+  
+  entry.count++;
+  return { success: true, waitSeconds: 0 };
+}
+
 export async function generateReview(
   keywords: string[], 
   staffName: string, 
@@ -25,32 +54,22 @@ export async function generateReview(
   companion: string = "友達",
   gender: string = "男性",
   visitType: string = "地元",
-  language: string = "ja"
+  language: string = "ja",
+  clientId: string = "default" // クライアント側から送られる一意のID
 ) {
-  // レート制限チェック
-  let clientIP = "unknown";
-  try {
-    const headersList = await headers();
-    clientIP = getClientIP(headersList);
-  } catch (error) {
-    console.warn("⚠️ Could not get client IP, using fallback");
-    // IPが取得できない場合はレート制限をスキップ（開発環境対応）
-  }
-
-  const rateLimitResult = checkRateLimit(clientIP, 3, 60000); // 1分間に3回まで
+  // レート制限チェック（クライアントIDベース）
+  const rateLimitResult = checkSimpleRateLimit(clientId);
 
   if (!rateLimitResult.success) {
-    const waitSeconds = Math.ceil((rateLimitResult.reset - Date.now()) / 1000);
-    console.warn(`⚠️ Rate limit exceeded for IP: ${clientIP}`);
-    
+    console.warn(`⚠️ Rate limit exceeded for client: ${clientId}`);
     throw new Error(
       language === "ja"
-        ? `リクエストが多すぎます。${waitSeconds}秒後に再試行してください。`
-        : `Too many requests. Please try again in ${waitSeconds} seconds.`
+        ? `リクエストが多すぎます。${rateLimitResult.waitSeconds}秒後に再試行してください。`
+        : `Too many requests. Please try again in ${rateLimitResult.waitSeconds} seconds.`
     );
   }
 
-  console.log(`✅ Rate limit OK for IP: ${clientIP} (${rateLimitResult.remaining}/${rateLimitResult.limit} remaining)`);
+  console.log(`✅ Rate limit OK for client: ${clientId}`);
 
   // スタッフ名を「推し」として扱う
   const staffMention = staffName ? `${staffName}さん` : "スタッフ";

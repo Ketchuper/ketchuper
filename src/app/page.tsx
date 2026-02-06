@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generateReview } from "./actions"; // さっき作った脳みそを繋ぐ
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,18 @@ import { Loader2, Copy, ExternalLink, Sparkles, Star } from "lucide-react";
 
 // Googleマップの投稿画面URL（ここにお客さんを飛ばします）
 const REVIEW_URL = "https://local.google.com/place?placeid=ChIJGWb3_AwT5TQRjGx04c24hBk&utm_medium=noren&utm_source=gbp&utm_campaign=2026";
+
+// クライアントIDを生成・保持（ブラウザセッション単位）
+function getClientId(): string {
+  if (typeof window === "undefined") return "server";
+  
+  let clientId = sessionStorage.getItem("barvel-client-id");
+  if (!clientId) {
+    clientId = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem("barvel-client-id", clientId);
+  }
+  return clientId;
+}
 
 export default function ReviewBooster() {
   const [language, setLanguage] = useState<"ja" | "en">("ja");
@@ -22,6 +34,12 @@ export default function ReviewBooster() {
   const [review, setReview] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [clientId, setClientId] = useState("default");
+
+  // クライアントIDを初期化
+  useEffect(() => {
+    setClientId(getClientId());
+  }, []);
 
   // ボタンが押されたらAIを呼ぶ関数
   const handleGenerate = async () => {
@@ -29,7 +47,7 @@ export default function ReviewBooster() {
     setReview(""); // 前の結果をクリア
     
     try {
-      const text = await generateReview(keywords, staff, rating, companion, gender, visitType, language);
+      const text = await generateReview(keywords, staff, rating, companion, gender, visitType, language, clientId);
       setReview(text);
       
       // 🎯 UX改善：生成完了後に結果エリアまで自動スクロール
@@ -125,8 +143,7 @@ export default function ReviewBooster() {
             }}
           />
         </div>
-        
-        {/* 言語切り替え */}
+              {/* 言語切り替え */}
         <div className="mt-4 flex justify-center gap-2">
           <button
             onClick={() => setLanguage("ja")}
