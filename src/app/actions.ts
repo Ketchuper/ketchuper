@@ -1,6 +1,8 @@
 "use server";
 
 import OpenAI from "openai";
+import { headers } from "next/headers";
+import { checkRateLimit, getClientIP } from "@/lib/rateLimit";
 
 // 環境変数からAPIキーを安全に読み込む
 const apiKey = process.env.OPENAI_API_KEY;
@@ -25,6 +27,24 @@ export async function generateReview(
   visitType: string = "地元",
   language: string = "ja"
 ) {
+  // レート制限チェック
+  const headersList = await headers();
+  const clientIP = getClientIP(headersList);
+  const rateLimitResult = checkRateLimit(clientIP, 3, 60000); // 1分間に3回まで
+
+  if (!rateLimitResult.success) {
+    const waitSeconds = Math.ceil((rateLimitResult.reset - Date.now()) / 1000);
+    console.warn(`⚠️ Rate limit exceeded for IP: ${clientIP}`);
+    
+    throw new Error(
+      language === "ja"
+        ? `リクエストが多すぎます。${waitSeconds}秒後に再試行してください。`
+        : `Too many requests. Please try again in ${waitSeconds} seconds.`
+    );
+  }
+
+  console.log(`✅ Rate limit OK for IP: ${clientIP} (${rateLimitResult.remaining}/${rateLimitResult.limit} remaining)`);
+
   // スタッフ名を「推し」として扱う
   const staffMention = staffName ? `${staffName}さん` : "スタッフ";
   const hasStaff = staffName && staffName.trim().length > 0;
