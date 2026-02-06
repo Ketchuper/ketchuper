@@ -1,18 +1,20 @@
 "use server";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 
 // 環境変数からAPIキーを安全に読み込む
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.OPENAI_API_KEY;
 
 if (!apiKey) {
-  console.error("❌ GEMINI_API_KEY が設定されていません");
+  console.error("❌ OPENAI_API_KEY が設定されていません");
   throw new Error("API key is not configured. Please contact the administrator.");
 }
 
-console.log("✅ API Key loaded");
+console.log("✅ OpenAI API Key loaded");
 
-const genAI = new GoogleGenerativeAI(apiKey); 
+const openai = new OpenAI({
+  apiKey: apiKey,
+});
 
 export async function generateReview(
   keywords: string[], 
@@ -23,16 +25,6 @@ export async function generateReview(
   visitType: string = "地元",
   language: string = "ja"
 ) {
-  const model = genAI.getGenerativeModel({ 
-    model: "gemini-flash-latest", // 最新の安定版（新APIキーで動作確認済み）
-    generationConfig: {
-      temperature: 0.9,
-      maxOutputTokens: 2048, // 十分な余裕を確保
-      topP: 0.9,
-      stopSequences: [], // 途中で止まらないように
-    }
-  });
-
   // スタッフ名を「推し」として扱う
   const staffMention = staffName ? `${staffName}さん` : "スタッフ";
   const hasStaff = staffName && staffName.trim().length > 0;
@@ -63,22 +55,22 @@ export async function generateReview(
     "スタッフ最高": "スタッフのノリが良い、接客が楽しい、一人でも寂しくない点を強調"
   };
   
-  // 選択されたキーワードのコンテキストを結合
   const selectedContexts = keywords
     .map(kw => keywordContexts[kw])
     .filter(Boolean)
     .join("。");
   
-  // 英語版のプロンプト
+  // 英語版の設定
   if (language === "en") {
-    const genderEn = gender === "男性" ? "male" : "female";
     const companionEn: Record<string, string> = {
       "友達": "friends",
-      "同僚": "coworkers", 
+      "同僚": "coworkers",
       "恋人": "partner",
       "一人": "solo"
     };
-    const visitTypeEn = visitType === "地元" ? "local" : "tourist";
+    
+    const genderEn = gender === "女性" ? "female" : "male";
+    const visitTypeEn = visitType === "観光" ? "tourist" : "local";
     const companionText = companionEn[companion] || "friends";
     
     const keywordContextsEn: Record<string, string> = {
@@ -130,42 +122,58 @@ Write ONE complete review following the rules above for a **${companionText} ${v
 2. End with a complete sentence! Use closings like "Coming back!", "Highly recommend!", "See you soon!" etc.`;
 
     try {
-      console.log("🔄 Generating review (EN)...", { companion: companionText, gender: genderEn, visitType: visitTypeEn });
+      console.log(`🚀 OpenAI実行開始 (EN)`, { keywords, staffName, rating, companion, gender, visitType });
       
-      const result = await model.generateContent(prompt);
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "You're a customer in your 20s-30s who visited BARVEL KOZA in Koza, Okinawa. Write a Google Maps review with a fun, friendly tone in ENGLISH ONLY."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.9,
+        max_tokens: 500,
+        top_p: 0.95,
+      });
       
-      if (!result || !result.response) {
-        throw new Error("AI response is empty. Please try again.");
+      const reviewText = completion.choices[0]?.message?.content || "";
+      
+      if (!reviewText) {
+        throw new Error("OpenAI returned empty response");
       }
       
-      const text = result.response.text();
+      console.log(`✅ OpenAI生成成功 (EN):`, reviewText);
+      return reviewText.trim();
       
-      console.log("✅ Generated review (EN):", text);
-      console.log("Text length:", text.length);
-      
-      const trimmedText = text.trim();
-      if (trimmedText.length < 60) {
-        console.warn("⚠️ Generated text is too short:", trimmedText);
-        throw new Error("Generated review is too short. Please try again.");
-      }
-      
-      return trimmedText;
     } catch (error: any) {
-      console.error("❌ Review generation error (EN):", error);
+      console.error(`❌ 口コミ生成エラー (EN):`, error);
       
-      if (error?.message?.includes("API key")) {
-        throw new Error("API key configuration error. Please contact support.");
-      } else if (error?.message?.includes("quota")) {
-        throw new Error("API quota exceeded. Please try again later.");
-      } else if (error?.message?.includes("timeout") || error?.message?.includes("ECONNREFUSED")) {
-        throw new Error("Network timeout. Please check your connection and try again.");
+      if (error.message?.includes("API key") || error.message?.includes("authentication") || error.status === 401) {
+        throw new Error("API authentication failed. Please contact administrator.");
       }
       
-      throw new Error(error?.message || "Failed to generate review. Please try again.");
+      if (error.message?.includes("quota") || error.message?.includes("limit") || error.status === 429) {
+        throw new Error("API usage limit reached. Please try again later.");
+      }
+      
+      if (error.message?.includes("network") || error.message?.includes("fetch") || error.code === "ENOTFOUND") {
+        throw new Error("Network error occurred. Please check your connection.");
+      }
+      
+      if (error.message?.includes("timeout") || error.code === "ETIMEDOUT") {
+        throw new Error("Request timed out. Please try again.");
+      }
+      
+      throw new Error("Failed to generate review. Please try again.");
     }
   }
   
-  // 日本語版のプロンプト（既存）
+  // 日本語版のプロンプト
   const prompt = `あなたは沖縄コザの「BARVEL KOZA」を訪れた20代〜30代の${gender}客で、少し酔っ払って楽しいテンション。Googleマップに実体験の口コミを投稿します。
 
 【体験内容】
@@ -201,37 +209,53 @@ ${companion === "恋人" && keywords.includes("時間無制限飲み放題") ? `
 【超重要】文章は必ず完結させること！「また行く！」「おすすめ！」などの締めの言葉で終わること。途中で終わるのは絶対NG！！！`;
 
   try {
-    console.log("🔄 Generating review (JA)...", { companion, gender, visitType });
+    console.log(`🚀 OpenAI実行開始 (JA)`, { keywords, staffName, rating, companion, gender, visitType });
     
-    const result = await model.generateContent(prompt);
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "あなたは沖縄県コザの「BARVEL KOZA」を訪れた20代〜30代の顧客です。Googleマップに投稿する口コミを、親しみやすく楽しいトーンで書いてください。"
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.9,
+      max_tokens: 500,
+      top_p: 0.95,
+    });
     
-    if (!result || !result.response) {
-      throw new Error("AIの応答が空です。もう一度試してください。");
+    const reviewText = completion.choices[0]?.message?.content || "";
+    
+    if (!reviewText) {
+      throw new Error("OpenAI returned empty response");
     }
     
-    const text = result.response.text();
+    console.log(`✅ OpenAI生成成功 (JA):`, reviewText);
+    return reviewText.trim();
     
-    console.log("✅ Generated review (JA):", text);
-    console.log("Text length:", text.length);
-    
-    const trimmedText = text.trim();
-    if (trimmedText.length < 80) {
-      console.warn("⚠️ 生成されたテキストが短すぎます:", trimmedText);
-      throw new Error("生成された口コミが短すぎます。もう一度試してください。");
-    }
-    
-    return trimmedText;
   } catch (error: any) {
-    console.error("❌ 口コミ生成エラー (JA):", error);
+    console.error(`❌ 口コミ生成エラー (JA):`, error);
     
-    if (error?.message?.includes("API key")) {
-      throw new Error("API設定エラー。サポートに連絡してください。");
-    } else if (error?.message?.includes("quota")) {
-      throw new Error("API使用制限に達しました。しばらく待ってから再試行してください。");
-    } else if (error?.message?.includes("timeout") || error?.message?.includes("ECONNREFUSED")) {
-      throw new Error("ネットワークタイムアウト。接続を確認してもう一度試してください。");
+    if (error.message?.includes("API key") || error.message?.includes("authentication") || error.status === 401) {
+      throw new Error("APIキーの認証に失敗しました。管理者に連絡してください。");
     }
     
-    throw new Error(error?.message || "口コミの生成に失敗しました。もう一度試してください。");
+    if (error.message?.includes("quota") || error.message?.includes("limit") || error.status === 429) {
+      throw new Error("API使用制限に達しました。しばらく待ってから再試行してください。");
+    }
+    
+    if (error.message?.includes("network") || error.message?.includes("fetch") || error.code === "ENOTFOUND") {
+      throw new Error("ネットワークエラーが発生しました。接続を確認してください。");
+    }
+    
+    if (error.message?.includes("timeout") || error.code === "ETIMEDOUT") {
+      throw new Error("リクエストがタイムアウトしました。もう一度試してください。");
+    }
+    
+    throw new Error("口コミの生成に失敗しました。もう一度お試しください。");
   }
 }
