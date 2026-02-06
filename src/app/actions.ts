@@ -24,7 +24,7 @@ export async function generateReview(
   language: string = "ja"
 ) {
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash-latest", // 安定版モデル（1日1,500リクエスト）
+    model: "gemini-1.5-flash", // 確実に動く安定版（1日1,500リクエスト）
     generationConfig: {
       temperature: 0.9,
       maxOutputTokens: 2048, // 十分な余裕を確保
