@@ -86,8 +86,8 @@ export default function ReviewBooster() {
     }
   };
 
-  // コピーしてGoogleマップを開く関数
-  const handleCopyAndGo = async () => {
+  // コピー専用関数
+  const handleCopy = async () => {
     let copySuccess = false;
     
     try {
@@ -115,16 +115,18 @@ export default function ReviewBooster() {
     if (copySuccess) {
       // コピー成功のフィードバック
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 3000); // 3秒表示
     } else {
       // コピー失敗時の警告
       const msg = language === "ja" 
-        ? "⚠️ 自動コピーできませんでした。\n口コミを手動でコピーしてから投稿してください。"
-        : "⚠️ Auto-copy failed.\nPlease copy the review manually before posting.";
+        ? "⚠️ コピーに失敗しました。\n\n上のテキストを長押しして手動でコピーしてください。"
+        : "⚠️ Copy failed.\n\nPlease long press the text above to copy manually.";
       alert(msg);
     }
-    
-    // Google Mapsを開く
+  };
+
+  // Googleマップを開く専用関数
+  const handleOpenGoogleMaps = () => {
     window.open(REVIEW_URL, "_blank");
   };
 
@@ -335,33 +337,66 @@ export default function ReviewBooster() {
               onChange={(e) => setReview(e.target.value)}
               className="bg-black/50 border-gray-700 text-white h-32 text-base leading-relaxed p-3 rounded-lg focus:ring-cyan-500"
             />
-            <Button 
-              onClick={handleCopyAndGo} 
-              className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${
-                copied 
-                  ? "bg-green-500 text-white" 
-                  : "bg-white text-black hover:bg-gray-200"
-              }`}
-            >
-              {copied ? (
-                <>
-                  <Copy className="mr-2 h-5 w-5" /> 
-                  {language === "ja" ? "✅ コピー完了！" : "✅ Copied!"}
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-2 h-5 w-5" /> 
-                  {language === "ja" ? "コピーして投稿画面へ" : "Copy & Post on Google"}
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-            <p className="text-[10px] text-center text-gray-400">
-              {language === "ja" 
-                ? "※ボタンを押すと文章がコピーされ、Googleマップの投稿画面が開きます。"
-                : "※ Click to copy the review and open Google Maps posting page."
-              }
-            </p>
+            {/* ステップ表示 */}
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3 text-sm">
+              <div className="font-bold mb-2 text-cyan-400">
+                {language === "ja" ? "📋 投稿手順" : "📋 How to Post"}
+              </div>
+              <div className="space-y-1 text-gray-300">
+                <div>{language === "ja" ? "① 下の「コピー」ボタンをタップ" : "① Tap 'Copy' button below"}</div>
+                <div>{language === "ja" ? "② 「Googleマップで投稿」ボタンをタップ" : "② Tap 'Post on Google Maps'"}</div>
+                <div>{language === "ja" ? "③ 口コミ入力欄を長押し → ペースト" : "③ Long press review field → Paste"}</div>
+              </div>
+            </div>
+
+            {/* ボタンを2つに分割 */}
+            <div className="grid grid-cols-1 gap-3">
+              {/* ステップ1: コピーボタン */}
+              <Button 
+                onClick={handleCopy} 
+                className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${
+                  copied 
+                    ? "bg-green-500 text-white hover:bg-green-600" 
+                    : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:opacity-90"
+                }`}
+              >
+                {copied ? (
+                  <>
+                    <Copy className="mr-2 h-5 w-5" /> 
+                    {language === "ja" ? "✅ コピー完了！" : "✅ Copied!"}
+                  </>
+                ) : (
+                  <>
+                    <Copy className="mr-2 h-5 w-5" /> 
+                    {language === "ja" ? "① 口コミをコピー 📋" : "① Copy Review 📋"}
+                  </>
+                )}
+              </Button>
+
+              {/* ステップ2: Googleマップボタン */}
+              <Button 
+                onClick={handleOpenGoogleMaps}
+                disabled={!copied}
+                className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${
+                  copied
+                    ? "bg-white text-black hover:bg-gray-200"
+                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <ExternalLink className="mr-2 h-5 w-5" /> 
+                {language === "ja" ? "② Googleマップで投稿 🚀" : "② Post on Google Maps 🚀"}
+              </Button>
+            </div>
+
+            {/* ヘルプテキスト */}
+            {!copied && (
+              <div className="text-xs text-gray-500 text-center">
+                {language === "ja" 
+                  ? "💡 まず「コピー」ボタンを押してください"
+                  : "💡 Please tap 'Copy' button first"
+                }
+              </div>
+            )}
           </Card>
         )}
       </main>
