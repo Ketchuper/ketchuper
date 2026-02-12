@@ -1,6 +1,7 @@
 "use server";
 
 import OpenAI from "openai";
+import { generateRandomParams, ReviewGenerationParams } from "@/lib/reviewParams";
 
 // 環境変数からAPIキーを安全に読み込む
 const apiKey = process.env.OPENAI_API_KEY;
@@ -38,7 +39,8 @@ function checkSimpleRateLimit(identifier: string): { success: boolean; waitSecon
     return { success: true, waitSeconds: 0 };
   }
   
-  if (entry.count >= 3) {
+  // 1分間に6回まで（やり直し・言語切替を考慮）
+  if (entry.count >= 6) {
     const waitSeconds = Math.ceil((entry.resetTime - now) / 1000);
     return { success: false, waitSeconds };
   }
@@ -55,8 +57,13 @@ export async function generateReview(
   gender: string = "男性",
   visitType: string = "地元",
   language: string = "ja",
-  clientId: string = "default" // クライアント側から送られる一意のID
+  clientId: string = "default", // クライアント側から送られる一意のID
+  storeId: string = "barvel-koza" // 店舗ID（デフォルトはBARVEL）
 ) {
+  // 店舗によって文脈を変更
+  const isCebuOcto = storeId === "cebuocto";
+  const storeName = isCebuOcto ? "CEBUOCTO" : "BARVEL KOZA";
+  const storeContext = isCebuOcto ? "セブ島" : "沖縄コザ";
   // レート制限チェック（クライアントIDベース）
   const rateLimitResult = checkSimpleRateLimit(clientId);
 
@@ -71,40 +78,80 @@ export async function generateReview(
 
   console.log(`✅ Rate limit OK for client: ${clientId}`);
 
+  // パラメータ生成（毎回ランダム）
+  const hasStaff = Boolean(staffName && staffName.trim().length > 0);
+  const params = generateRandomParams(gender, rating, hasStaff);
+  
+  console.log(`🎲 Generated params:`, params);
+
   // スタッフ名を「推し」として扱う
   const staffMention = staffName ? `${staffName}さん` : "スタッフ";
-  const hasStaff = staffName && staffName.trim().length > 0;
+  const mentionStaff = hasStaff && Math.random() < params.staffMentionRate;
   
-  // 同行者に応じた表現パターン
-  const companionContexts = {
-    "友達": ["友達と", "友達数人で", "仲間と", "友人たちと"],
-    "同僚": ["会社の同僚と", "職場の仲間と", "仕事仲間と", "同期と"],
-    "恋人": ["彼女と", "彼氏と", "パートナーと", "デートで"],
-    "一人": ["一人で", "ソロで", "ふらっと一人で", "仕事帰りに一人で"],
+  // キーワードの自動言い換え用のバリエーション定義
+  const keywordVariations: Record<string, string[]> = {
+    // BARVEL KOZA用
+    "ダーツ・ビリヤード無料": [
+      "ダーツとビリヤードが無料",
+      "ダーツもビリヤードもタダ",
+      "ゲームが遊び放題",
+      "ダーツとビリヤードが0円",
+      "無料でダーツとビリヤード",
+      "ダーツやビリヤードで遊べる"
+    ],
+    "時間無制限飲み放題": [
+      "時間制限なしの飲み放題",
+      "飲み放題が時間無制限",
+      "時間を気にせず飲める",
+      "定額で朝まで飲める",
+      "時間制限ない飲み放題"
+    ],
+    "出入り自由・ハシゴ酒": [
+      "出入り自由",
+      "リストバンドで出入りできる",
+      "ハシゴ酒に便利",
+      "自由に出入りできる",
+      "出入り自由なシステム"
+    ],
+    "スタッフ最高": [
+      "スタッフが良い",
+      "スタッフが親切",
+      "スタッフのノリが良い",
+      "スタッフと話せて楽しい",
+      "接客が良い"
+    ],
+    
+    // CEBUOCTO用
+    "半日プランで満喫": [
+      "半日プランで効率的",
+      "半日で色々楽しめた",
+      "半日プランがちょうど良い",
+      "午前中だけで満喫",
+      "短時間で充実した体験",
+      "半日コースで十分楽しめる"
+    ],
+    "パラセーリング": [
+      "パラセーリングが最高",
+      "空から見る景色が綺麗",
+      "パラセーリングで空を飛んだ",
+      "パラセーリング体験",
+      "空中からの眺めが素晴らしい"
+    ],
+    "アイランドホッピング": [
+      "アイランドホッピングで島巡り",
+      "綺麗な海でシュノーケリング",
+      "ボートで島を回った",
+      "透明度の高い海",
+      "島巡りとシュノーケル"
+    ],
+    "写真・スタッフ": [
+      "日本人スタッフが親切",
+      "スタッフが写真を撮ってくれた",
+      "安全管理がしっかりしている",
+      "スタッフの気配りが良い",
+      "日本語で安心"
+    ]
   };
-  
-  // 性別に応じた一人称や表現（少し酔っ払ったテンション）
-  const genderTone = gender === "女性" 
-    ? "女性目線で、少し酔っ払った楽しいテンション。堅苦しくない口語体" 
-    : "男性目線で、少し酔っ払った楽しいテンション。堅苦しくない口語体";
-  
-  // 地元 or 観光に応じた表現
-  const visitContext = visitType === "観光"
-    ? "観光・旅行で沖縄を訪れた設定。「旅行で来た」「沖縄旅行中に」などの表現を使う"
-    : "沖縄在住・地元の設定。「いつも通っている」「地元で有名」などの表現を使う。旅行感は一切出さない";
-  
-  // キーワード別の強調ポイント
-  const keywordContexts: Record<string, string> = {
-    "ダーツ・ビリヤード無料": "ダーツもビリヤードもカラオケも全部無料で遊び放題なことに驚いた様子。お得すぎる点を強調",
-    "時間無制限飲み放題": "時間を気にせず朝まで定額で飲める点に感動。コスパ最強を強調",
-    "出入り自由・ハシゴ酒": "リストバンドで出入り自由なシステムが便利。コザのハシゴ酒の拠点に最適という点を強調",
-    "スタッフ最高": "スタッフのノリが良い、接客が楽しい、一人でも寂しくない点を強調"
-  };
-  
-  const selectedContexts = keywords
-    .map(kw => keywordContexts[kw])
-    .filter(Boolean)
-    .join("。");
   
   // 英語版の設定
   if (language === "en") {
@@ -219,59 +266,153 @@ Write ONE complete review following the rules above for a **${companionText} ${v
     }
   }
   
-  // 日本語版のプロンプト
-  const prompt = `あなたは沖縄コザの「BARVEL KOZA」を訪れた20代〜30代の${gender}客で、少し酔っ払って楽しいテンション。Googleマップに実体験の口コミを投稿します。
+  // キーワードをランダムに言い換え
+  const selectedKeywordTexts = keywords.map(kw => {
+    const variations = keywordVariations[kw] || [kw];
+    return variations[Math.floor(Math.random() * variations.length)];
+  });
 
-【体験内容】
-- 評価: ${rating}つ星
-- 来店タイプ: ${visitType}（${visitContext}）
-- 誰と来た: ${companion}
-- 良かったポイント: ${keywords.join("、")}
-${hasStaff ? `- 推しスタッフ: ${staffMention}（ファン目線で言及する）` : ""}
+  // 日本語プロンプト（パラメータ駆動型）
+  const isFemale = gender === "女性";
+  const isLocal = visitType === "地元";
+  
+  // 文体スタイルの説明
+  const styleDescriptions: Record<string, string> = {
+    "simple": "短く簡潔に。〜だった、〜できた、で終わる",
+    "satisfied": "満足感を表現。〜で良かった、〜も楽しめた",
+    "evaluative": "評価を明確に。〜が印象的、〜なのも良い",
+    "recommend": "推奨スタイル。〜行った、〜だった、おすすめ",
+    "narrative": "エピソード重視。具体的な体験を描写"
+  };
+  
+  // 読点スタイルの説明
+  const commaDescriptions: Record<string, string> = {
+    "minimal": "ほとんど使わない",
+    "standard": "文法通りに使う",
+    "chaotic": "不規則な位置に打つ",
+    "none": "一切使わない"
+  };
+  
+  // 店舗固有の設定
+  const storeSpecificSettings = isCebuOcto 
+    ? {
+        storeName: "CEBUOCTO",
+        locationContext: "セブ島旅行中",
+        activityType: "マリンアクティビティ",
+        mood: "ハイテンション、楽しかった、感謝の気持ち",
+        forbiddenWords: ["スタッフ名は出さない"], // 仕様通り
+        mandatoryEmoji: ["🌊", "🚤", "✨", "📸"] // CEBUOCTO推奨
+      }
+    : {
+        storeName: "BARVEL KOZA",
+        locationContext: isLocal ? "沖縄在住" : "旅行で沖縄訪問中",
+        activityType: "飲み",
+        mood: "楽しかった",
+        forbiddenWords: [],
+        mandatoryEmoji: []
+      };
+  
+  // 店名配置の指示を生成
+  const storeNameInstructions: Record<string, string> = {
+    "beginning": `冒頭で「${storeSpecificSettings.storeName}」という店名を自然に入れる`,
+    "middle": `文の途中で「${storeSpecificSettings.storeName}」を自然に言及する`,
+    "end": `締めの部分で「${storeSpecificSettings.storeName}」を入れる`,
+    "none": "店名は入れなくても良い（自然な流れ優先）"
+  };
 
-【強調すべきポイント】
-${selectedContexts}
+  const prompt = `あなたは${isFemale ? "20代後半の女性" : "20代後半の男性"}。${storeSpecificSettings.locationContext}。Googleマップに口コミを書いています。
 
-【絶対に守るルール】
-1. **必ず完結した文章で最後まで書き切る**（途中で絶対に終わらない！！！）
-2. **文字数: 120〜150文字程度**（長すぎず、必ず締めの言葉で完結させる）
-3. **20〜30代の少し酔っ払った口調**（「マジで」「やばい」「最高」などの口語表現）
-4. **堅苦しいAI感を排除**（「です・ます」調は控えめ、タメ口メイン）
-5. **${visitType}の設定を守る**: ${visitContext}
-6. **${companion}と来た設定を反映**: ${companionContexts[companion as keyof typeof companionContexts].join("、")}などを使う
-7. **${genderTone}で書く**
-8. **絵文字2〜3個を自然に使用**
-9. **過去形で実体験として記述**（「〜した」「〜だった」）
-10. **前向きな締めくくり**（「また行く」「おすすめ」など）
-${hasStaff ? `11. **スタッフを「推し」として言及**: 「${staffMention}が面白かった」「また${staffMention}に会いに行く」などファン目線で` : ""}
+【訪問内容】
+${params.includeTime ? params.timeContext : ""}${companion}と${storeSpecificSettings.activityType}に行きました。
 
-【良い例】
-${companion === "友達" && keywords.includes("ダーツ・ビリヤード無料") ? `「友達とコザ飲みの締めに寄ったら、ダーツもビリヤードも全部無料でマジでビビった😂 時間も気にせず朝まで遊べるし、${hasStaff ? staffMention + "のノリも最高で" : ""}コスパやばすぎ🎯 また絶対行く！」` : ""}
-${companion === "一人" && keywords.includes("スタッフ最高") ? `「仕事帰りに一人で寄ったら${hasStaff ? staffMention : "スタッフ"}が絡んでくれて楽しかった🍺 一人でも全然寂しくないし、出入り自由だからハシゴの拠点に最適！${hasStaff ? "また" + staffMention + "に会いに行くわ〜" : "また行く〜"}✨」` : ""}
-${companion === "恋人" && keywords.includes("時間無制限飲み放題") ? `「彼女と初めて行ったけど、時間制限なしの飲み放題で朝までゆっくりできた😊 ${hasStaff ? staffMention + "も気さくだし、" : ""}雰囲気も良くてデートにもおすすめ！また来ます🔄」` : ""}
+良かった点:
+${selectedKeywordTexts.map(t => `・${t}`).join("\n")}
+${mentionStaff && !isCebuOcto ? `・${staffMention}の接客` : ""}
+${isCebuOcto ? "・日本人スタッフの気配り" : ""}
 
-上記ルールに従い、**${companion}と来た${visitType}の設定**で、少し酔っ払ったテンションの口コミを1つ作成してください。
+【書き方の特徴】
+${isFemale 
+  ? `感情を素直に表現。楽しかった気持ちを伝える。絵文字${params.emojiCount}個程度使ってOK${isCebuOcto ? "（🌊🚤✨📸などがおすすめ）" : ""}。`
+  : `事実を淡々と伝える。絵文字は${params.emojiCount > 0 ? "1個まで" : "使わない"}。落ち着いた表現。`}
+${isCebuOcto ? `\nテンション: ${storeSpecificSettings.mood}` : ""}
 
-【超重要】文章は必ず完結させること！「また行く！」「おすすめ！」などの締めの言葉で終わること。途中で終わるのは絶対NG！！！`;
+【文体（今回）】
+${styleDescriptions[params.stylePattern]}
+
+【ルール】
+・文字数: 約${params.length}文字
+・店名の配置: ${storeNameInstructions[params.storeNamePosition]}
+・助詞を省略した口語も自然に（例: ダーツ無料で良い、海きれい）
+・読点: ${commaDescriptions[params.commaStyle]}
+・冒頭: 毎回違う書き出しで（${companion}と${storeName}に、は使いすぎ。別の表現で）
+${isCebuOcto 
+  ? `・観光客として。楽しかった体験を。
+・半日プランの効率性を強調（午後は買い物など他の予定も可能）
+・安全性と楽しさの両立を言及
+・日本人スタッフへの感謝も自然に`
+  : `・${isLocal ? "地元民として。知ってることに驚かない。" : "観光客として。"}
+・感情語: ${isFemale ? "感情を込めて" : "控えめに"}
+・強調表現（とても、すごく）: ${isFemale ? "使ってOK" : "あまり使わない"}
+${isFemale ? "・感謝の気持ちも表現OK" : ""}`}
+
+【冒頭のバリエーション例】
+${isCebuOcto 
+  ? `・セブ島で${companion}とツアー参加
+・${params.includeTime ? params.timeContext : "旅行中に"}${companion}と体験
+・${companion}とCEBUOCTOのツアーに
+・セブ旅行の目玉として
+・${companion}に誘われて参加`
+  : `・${params.includeTime ? params.timeContext : "週末に"}${companion}と飲んだ
+・コザで${companion}と遊んだ
+・ハシゴ酒の締めに寄った
+・久しぶりに${companion}と
+・仕事帰りに${companion}と
+・${companion}${params.openingPattern}
+・地元の飲み屋を探して
+（「${companion}に誘われて行った」は使うなら1回だけ。他を優先）`}
+
+【締めのバリエーション】
+毎回違う締めで。例: 一文で終わる、また来たい、おすすめ、感想だけ、比較（他店より）、一言（良かった）など。型にハマらない。
+
+【禁止】
+・同じ冒頭パターンを繰り返さない
+・矛盾しない
+・${rating === 5 ? "星5なのでポジティブに（大袈裟すぎない）" : `星${rating}なので適度な評価に`}
+${rating < 5 ? "・小さな不満を入れても良い" : ""}
+
+【NGワード（使いすぎ注意・別表現で）】
+最高、素敵、また行く、楽しい時間、過ごした、ゆっくり、印象的 → 使うなら1回まで。ゆっくり→落ち着いて/のんびり、印象的→覚えてる/良かった、など言い換え可。
+
+自然で毎回違う構成の口コミを書いてください。`;
 
   try {
-    console.log(`🚀 OpenAI実行開始 (JA)`, { keywords, staffName, rating, companion, gender, visitType });
+    console.log(`🚀 OpenAI実行開始 (JA)`, { 
+      keywords, 
+      staffName, 
+      rating, 
+      companion, 
+      gender, 
+      visitType,
+      params 
+    });
     
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "あなたは沖縄県コザの「BARVEL KOZA」を訪れた20代〜30代の顧客です。Googleマップに投稿する口コミを、親しみやすく楽しいトーンで書いてください。"
+          content: `あなたは普通の人間です。Googleマップに短い口コミを書いています。決まった型や構造はありません。自分らしく、自由に書いてください。`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      temperature: 0.9,
-      max_tokens: 500,
+      temperature: 0.95, // 高めのバリエーション
+      max_tokens: 300,
       top_p: 0.95,
+      frequency_penalty: 0.4, // 繰り返し抑制
+      presence_penalty: 0.4,  // 新表現促進
     });
     
     const reviewText = completion.choices[0]?.message?.content || "";
