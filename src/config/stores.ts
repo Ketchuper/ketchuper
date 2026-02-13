@@ -151,7 +151,7 @@ export const stores: Record<string, StoreConfig> = {
     name: "CEBUOCTO",
     nameEn: "CEBUOCTO (セブオクト)",
     logoPath: "/cebuocto-logo.png",
-    googleMapsUrl: "https://maps.app.goo.gl/zQf15Qzi5adydRep8?g_st=ic",
+    googleMapsUrl: "https://maps.app.goo.gl/zM4SC3s4k7rMazSbA",
     placeId: "cebuocto", // Google Place IDが必要な場合は後で更新
     
     theme: {

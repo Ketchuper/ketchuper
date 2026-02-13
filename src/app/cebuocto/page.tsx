@@ -34,7 +34,7 @@ const KEYWORDS_JA = [
 const COMPANIONS_JA = ["友達", "家族", "恋人", "一人"];
 const GENDERS_JA = ["男性", "女性"];
 
-const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/zQf15Qzi5adydRep8?g_st=ic";
+const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/zM4SC3s4k7rMazSbA";
 
 export default function CebuoctoReviewPage() {
   const [rating, setRating] = useState(5);
