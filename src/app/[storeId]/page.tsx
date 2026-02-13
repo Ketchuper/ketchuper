@@ -192,15 +192,24 @@ export default function StoreReviewBooster() {
     );
   }
 
+  const isSinglePage = storeConfig.singlePageLayout === true;
+  const isCebuocto = storeId === "cebuocto";
+
   return (
-    <div className="min-h-screen bg-black text-white p-4 font-sans selection:bg-cyan-500 pb-20">
+    <div
+      className={`min-h-screen text-white font-sans ${isSinglePage ? "p-3 pb-16" : "p-4 pb-20"} ${
+        isCebuocto
+          ? "bg-gradient-to-b from-slate-900 via-teal-950/30 to-slate-900 selection:bg-teal-500/50"
+          : "bg-black selection:bg-cyan-500"
+      }`}
+    >
       {/* ヘッダーエリア */}
-      <header className="py-6 text-center animate-in slide-in-from-top duration-500">
+      <header className={`text-center animate-in slide-in-from-top duration-500 ${isSinglePage ? "py-3" : "py-6"}`}>
         <div className="relative inline-block">
           <img 
             src={storeConfig.logoPath}
             alt={storeConfig.name} 
-            className="h-24 w-auto mx-auto animate-pulse-glow"
+            className={`w-auto mx-auto animate-pulse-glow ${isSinglePage ? "h-14" : "h-24"}`}
             style={{
               filter: storeConfig.theme.logoGlow,
               animation: 'pulse-glow 2s ease-in-out infinite'
@@ -209,34 +218,26 @@ export default function StoreReviewBooster() {
         </div>
         
         {/* 言語切り替え */}
-        <div className="mt-4 flex justify-center gap-2">
+        <div className={`flex justify-center gap-2 ${isSinglePage ? "mt-2" : "mt-4"}`}>
           <button
             onClick={() => setLanguage("ja")}
-            className={`px-6 py-2 rounded-lg font-bold transition-all ${
-              language === "ja"
-                ? "bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-            }`}
-            style={{
-              background: language === "ja" 
-                ? `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})`
-                : undefined
-            }}
+            className={`rounded-lg font-bold transition-all ${
+              language === "ja" ? "text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+            } ${isSinglePage ? "px-4 py-1.5 text-sm" : "px-6 py-2"}`}
+            style={language === "ja" ? {
+              background: `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})`
+            } : undefined}
           >
             🇯🇵 日本語
           </button>
           <button
             onClick={() => setLanguage("en")}
-            className={`px-6 py-2 rounded-lg font-bold transition-all ${
-              language === "en"
-                ? "bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-            }`}
-            style={{
-              background: language === "en" 
-                ? `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})`
-                : undefined
-            }}
+            className={`rounded-lg font-bold transition-all ${
+              language === "en" ? "text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+            } ${isSinglePage ? "px-4 py-1.5 text-sm" : "px-6 py-2"}`}
+            style={language === "en" ? {
+              background: `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})`
+            } : undefined}
           >
             🇺🇸 English
           </button>
@@ -256,6 +257,151 @@ export default function StoreReviewBooster() {
         }
       `}</style>
 
+      {/* CEBUOCTO用：1ページ構成（南国テーマ・レスポンシブ） */}
+      {isSinglePage ? (
+      <main className="max-w-xl mx-auto mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* 左: 星 + キーワード */}
+          <div className="space-y-4">
+            {storeConfig.features.rating.enabled && (
+              <section className="space-y-2">
+                <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
+                  {language === "ja" ? "評価 ⭐" : "Rating ⭐"}
+                </h2>
+                <div className="flex gap-1 flex-wrap">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setRating(star)}
+                      className={`p-2 rounded-lg transition-all ${
+                        rating >= star ? "text-amber-400 scale-105" : "text-gray-500 hover:text-amber-200"
+                      }`}
+                    >
+                      <Star className="h-7 w-7" fill={rating >= star ? "currentColor" : "none"} />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+            {storeConfig.features.keywords.enabled && (
+              <section className="space-y-2">
+                <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
+                  {language === "ja" ? "良かったポイント 🎯" : "What You Enjoyed 🎯"}
+                </h2>
+                <p className="text-xs text-gray-400">
+                  {language === "ja" ? "当てはまるものをいくつでも選べます（複数選択OK）" : "Select all that apply (multiple OK)"}
+                </p>
+                <ToggleGroup
+                  type="multiple"
+                  value={keywords}
+                  onValueChange={setKeywords}
+                  className="grid grid-cols-1 gap-2"
+                >
+                  {storeConfig.features.keywords.options[language].map((keyword, index) => (
+                    <ToggleGroupItem
+                      key={index}
+                      value={storeConfig.features.keywords.options.ja[index]}
+                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
+                    >
+                      {keyword}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </section>
+            )}
+          </div>
+          {/* 右: 誰と + 性別 */}
+          <div className="space-y-4">
+            {storeConfig.features.companion.enabled && (
+              <section className="space-y-2">
+                <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
+                  {language === "ja" ? "誰と 👥" : "With whom 👥"}
+                </h2>
+                <ToggleGroup
+                  type="single"
+                  value={companion}
+                  onValueChange={(value) => value && setCompanion(value)}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  {storeConfig.features.companion.options[language].map((option, index) => (
+                    <ToggleGroupItem
+                      key={index}
+                      value={storeConfig.features.companion.options.ja[index]}
+                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
+                    >
+                      {option}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </section>
+            )}
+            {storeConfig.features.gender.enabled && (
+              <section className="space-y-2">
+                <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
+                  {language === "ja" ? "あなた 👤" : "You 👤"}
+                </h2>
+                <ToggleGroup
+                  type="single"
+                  value={gender}
+                  onValueChange={(value) => value && setGender(value)}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  {storeConfig.features.gender.options[language].map((option, index) => (
+                    <ToggleGroupItem
+                      key={index}
+                      value={storeConfig.features.gender.options.ja[index]}
+                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
+                    >
+                      {option}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </section>
+            )}
+          </div>
+        </div>
+
+        <Button 
+          onClick={handleGenerate} 
+          disabled={loading || (storeConfig.features.keywords.enabled && keywords.length === 0)}
+          className="w-full py-5 text-lg font-black rounded-xl mt-6 transition-all active:scale-95 disabled:opacity-50 text-white"
+          style={{
+            background: `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})`,
+            boxShadow: `0 4px 20px ${storeConfig.theme.primaryColor}40`
+          }}
+        >
+          {loading ? <Loader2 className="animate-spin mr-2 h-5 w-5" /> : <Sparkles className="mr-2 h-5 w-5" />}
+          {language === "ja" ? "口コミを自動作成 🪄" : "Generate Review 🪄"}
+        </Button>
+
+        {review && (
+          <Card id="review-result" className={`p-4 space-y-3 mt-6 animate-in fade-in zoom-in duration-300 shadow-xl ${
+            isCebuocto ? "bg-white/5 border-teal-500/30" : "bg-gray-900/90 border-cyan-500/50"
+          }`}>
+            <Textarea 
+              value={review} 
+              onChange={(e) => setReview(e.target.value)}
+              className={`bg-black/30 border text-white min-h-[100px] text-sm leading-relaxed p-3 rounded-xl outline-none focus:ring-2 ${isCebuocto ? "border-teal-500/20 focus:ring-teal-500" : "border-gray-700 focus:ring-cyan-500"}`}
+            />
+            <div className={`rounded-xl p-2.5 text-xs ${isCebuocto ? "bg-teal-500/10 border border-teal-500/30 text-gray-300" : "bg-cyan-500/10 border border-cyan-500/30 text-gray-300"}`}>
+              {language === "ja" ? "①コピー → ②Googleマップで投稿 → ③ペースト" : "①Copy → ②Open Google Maps → ③Paste"}
+            </div>
+            <div className="grid grid-cols-1 gap-2">
+              <Button
+                onClick={handleCopy}
+                className={`w-full py-4 font-bold rounded-xl ${copied ? "bg-green-600 text-white" : "text-white"}`}
+                style={copied ? undefined : { background: `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})` }}
+              >
+                {copied ? <><Copy className="mr-2 h-4 w-4 inline" />{language === "ja" ? "✅ コピー完了" : "✅ Copied"}</> : <><Copy className="mr-2 h-4 w-4 inline" />{language === "ja" ? "① コピー 📋" : "① Copy 📋"}</>}
+              </Button>
+              <Button onClick={handleOpenGoogleMaps} disabled={!copied} className={`w-full py-4 font-bold rounded-xl ${copied ? "bg-white text-slate-800 hover:bg-gray-100" : "bg-gray-700 text-gray-400 cursor-not-allowed"}`}>
+                <ExternalLink className="mr-2 h-4 w-4" /> {language === "ja" ? "② Googleマップで投稿 🚀" : "② Post on Google Maps 🚀"}
+              </Button>
+            </div>
+          </Card>
+        )}
+      </main>
+      ) : (
       <main className="max-w-2xl mx-auto space-y-6 mt-8">
         {/* 1. 星評価 */}
         {storeConfig.features.rating.enabled && (
@@ -287,6 +433,9 @@ export default function StoreReviewBooster() {
             <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
               {language === "ja" ? "2. 良かったポイントを選んでください 🎯" : "2. Select What You Enjoyed 🎯"}
             </h2>
+            <p className="text-sm text-gray-400">
+              {language === "ja" ? "当てはまるものをいくつでも選べます（複数選択OK）" : "Select all that apply (multiple OK)"}
+            </p>
             <ToggleGroup
               type="multiple"
               value={keywords}
@@ -479,6 +628,7 @@ export default function StoreReviewBooster() {
           </Card>
         )}
       </main>
+      )}
     </div>
   );
 }

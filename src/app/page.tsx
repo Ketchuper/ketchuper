@@ -280,6 +280,9 @@ export default function ReviewBooster() {
           <h2 className="text-lg font-bold border-l-4 border-cyan-500 pl-2">
             {language === "ja" ? "3. 何が良かった？" : "3. What did you enjoy?"}
           </h2>
+          <p className="text-sm text-gray-400">
+            {language === "ja" ? "当てはまるものをいくつでも選べます（複数選択OK）" : "Select all that apply (multiple OK)"}
+          </p>
           <ToggleGroup type="multiple" className="flex flex-wrap gap-3 justify-center" onValueChange={setKeywords}>
             {(language === "ja" ? [
               { id: "ダーツ・ビリヤード無料", label: "🎯 ダーツ・ビリヤード無料" },

@@ -1,6 +1,28 @@
-# BARVEL Review Booster（MEO用口コミ下書き生成）
+# Review Booster（MEO用口コミ下書き生成）
 
-BARVEL KOZA / CEBUOCTO など店舗向けに、Google口コミ用の下書きをAIで生成するNext.jsアプリです。
+Google口コミ用の下書きをAIで生成するWebアプリです。**Review Booster** が製品名で、そのお客さんとして以下2つを運用しています。
+
+| お客さん | 役割 | URL |
+|----------|------|-----|
+| **BARVEL KOZA** | 有料で実証実験を実施中（沖縄コザのバー） | `/` または `/barvel-koza` |
+| **CEBUOCTO** | 営業代理点（フィリピン・セブ島のマリンツアー） | `/cebuocto` |
+
+- どちらも同じアプリ内で店舗IDごとに設定を切り替えています（`src/config/stores.ts`）。
+- 使えるものを早くデプロイして営業に回す想定です。
+
+---
+
+## 営業に回すまで（最短）
+
+1. **デプロイ**  
+   - このリポジトリを Vercel にデプロイ（Git連携で `main` プッシュで自動デプロイ）。
+2. **環境変数**  
+   - Vercel の **Settings → Environment Variables** で `OPENAI_API_KEY` を設定し、Redeploy。
+3. **URL共有**  
+   - BARVEL用: `https://（プロジェクト名）.vercel.app/` または `.../barvel-koza`  
+   - CEBUOCTO用（営業代理点）: `https://（プロジェクト名）.vercel.app/cebuocto`
+4. **営業への伝達**  
+   - 「口コミ下書きが自動作成される。星・ポイントを選んで生成 → コピー → Googleマップで投稿」と手順だけ共有すれば利用可能。
 
 ---
 

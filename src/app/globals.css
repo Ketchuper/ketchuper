@@ -123,3 +123,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* CEBUOCTO専用：背面の控えめなアニメーション（南国感を出しつつフォームの邪魔をしない） */
+.cebuocto-bg {
+  animation: cebuocto-bg-breath 20s ease-in-out infinite alternate;
+}
+@keyframes cebuocto-bg-breath {
+  0% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 1;
+  }
+}

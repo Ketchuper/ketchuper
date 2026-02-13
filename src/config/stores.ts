@@ -66,6 +66,9 @@ export interface StoreConfig {
     ja: string;
     en: string;
   };
+
+  // 1ページ構成（入力〜生成を1画面に収める）
+  singlePageLayout?: boolean;
 }
 
 // 店舗設定データベース
@@ -139,7 +142,8 @@ export const stores: Record<string, StoreConfig> = {
     promptContext: {
       ja: "沖縄県コザのバー「BARVEL KOZA」。ダーツ・ビリヤード・カラオケ無料、時間無制限飲み放題が特徴。20代〜30代の若者に人気。",
       en: "BARVEL KOZA is a bar in Koza, Okinawa. Features free darts, pool, karaoke, and unlimited time all-you-can-drink. Popular with young adults in their 20s-30s."
-    }
+    },
+    singlePageLayout: false
   },
   
   "cebuocto": {
@@ -151,9 +155,9 @@ export const stores: Record<string, StoreConfig> = {
     placeId: "cebuocto", // Google Place IDが必要な場合は後で更新
     
     theme: {
-      primaryColor: "#3b82f6", // blue-500
-      secondaryColor: "#06b6d4", // cyan-500
-      logoGlow: "drop-shadow(0 0 20px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 40px rgba(6, 182, 212, 0.4))"
+      primaryColor: "#0d9488",   // 南国・海をイメージした teal
+      secondaryColor: "#f59e0b", // サンセット・温かみの amber
+      logoGlow: "drop-shadow(0 0 12px rgba(13, 148, 136, 0.4)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.2))"
     },
     
     features: {
@@ -161,16 +165,32 @@ export const stores: Record<string, StoreConfig> = {
         enabled: true,
         options: {
           ja: [
-            "半日プランで満喫",
-            "パラセーリング",
-            "アイランドホッピング",
-            "写真・スタッフ"
+            "海がキレイ",
+            "スタッフが親切",
+            "写真・動画が最高",
+            "安心・安全",
+            "大興奮",
+            "シュノーケル",
+            "イルカに会えた",
+            "ウミガメに会えた",
+            "景色が絶景",
+            "コスパ良い",
+            "食事が美味しい",
+            "一生の思い出"
           ],
           en: [
-            "Half-day Plan",
-            "Parasailing",
-            "Island Hopping",
-            "Photos & Staff"
+            "Beautiful sea",
+            "Friendly staff",
+            "Great photos/videos",
+            "Safe & secure",
+            "So exciting",
+            "Snorkeling",
+            "Saw dolphins",
+            "Saw sea turtles",
+            "Stunning views",
+            "Great value",
+            "Delicious food",
+            "Memory of a lifetime"
           ]
         }
       },
@@ -209,9 +229,10 @@ export const stores: Record<string, StoreConfig> = {
     },
     
     promptContext: {
-      ja: "セブ島のマリンアクティビティツアー「CEBUOCTO（セブオクト）」。半日プランで効率的に、パラセーリング・アイランドホッピングなどが楽しめる。日本人スタッフが親切で安全管理も万全。",
-      en: "Marine activity tour in Cebu 'CEBUOCTO'. Half-day plan for time efficiency. Parasailing, island hopping, and more. Japanese staff ensures safety and great photos."
-    }
+      ja: "セブ島のマリンアクティビティツアー「CEBUOCTO（セブオクト）」。半日プランで効率的に、パラセーリング・アイランドホッピング・シュノーケルなどが楽しめる。海がキレイ、イルカやウミガメに会えることも。日本人スタッフが親切で写真・動画も撮ってくれ、安心・安全。",
+      en: "Marine activity tour in Cebu 'CEBUOCTO'. Half-day plan for time efficiency. Parasailing, island hopping, snorkeling. Crystal clear sea, dolphins and sea turtles. Japanese staff are friendly, take great photos/videos, and ensure safety."
+    },
+    singlePageLayout: true
   }
 };
 
