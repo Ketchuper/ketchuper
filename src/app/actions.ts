@@ -49,6 +49,25 @@ function checkSimpleRateLimit(identifier: string): { success: boolean; waitSecon
   return { success: true, waitSeconds: 0 };
 }
 
+/** 推しスタッフ欄が人名として使ってよいか判定。フレーズや記号の場合は false */
+function isLikelyStaffName(value: string): boolean {
+  const s = value.trim();
+  if (!s) return false;
+  // 記号が含まれる → 人名でない（例: みんな素敵！）
+  if (/[！？!?]/.test(s)) return false;
+  // 長すぎる → フレーズの可能性が高い
+  if (s.length > 10) return false;
+  // 人名でなさそうなフレーズ（含む）
+  const notNamePatterns = [
+    "みんな", "素敵", "最高", "覚えて", "誰でも", "全員", "みなさん", "みな",
+    "スタッフ全員", "みんなで", "とか", "忘れた", "いない", "特になし", "なし"
+  ];
+  for (const p of notNamePatterns) {
+    if (s.includes(p)) return false;
+  }
+  return true;
+}
+
 export async function generateReview(
   keywords: string[], 
   staffName: string, 
@@ -62,8 +81,10 @@ export async function generateReview(
 ) {
   // 店舗によって文脈を変更
   const isCebuOcto = storeId === "cebuocto";
-  const storeName = isCebuOcto ? "CEBUOCTO" : "BARVEL KOZA";
-  const storeContext = isCebuOcto ? "セブ島" : "沖縄コザ";
+  const isBarReplica = storeId === "bar-replica";
+  const isBarvelHonten = storeId === "barvel";
+  const storeName = isCebuOcto ? "CEBUOCTO" : isBarReplica ? "BAR REPLICA" : isBarvelHonten ? "BARVEL" : "BARVEL KOZA";
+  const storeContext = isCebuOcto ? "セブ島" : isBarReplica ? "名護・みどり街" : isBarvelHonten ? "沖縄（本店）" : "沖縄コザ";
   // レート制限チェック（クライアントIDベース）
   const rateLimitResult = checkSimpleRateLimit(clientId);
 
@@ -78,14 +99,15 @@ export async function generateReview(
 
   console.log(`✅ Rate limit OK for client: ${clientId}`);
 
-  // パラメータ生成（毎回ランダム）
-  const hasStaff = Boolean(staffName && staffName.trim().length > 0);
+  // 推しスタッフ欄が人名でない場合（例: みんな素敵！）はスタッフ名として使わない
+  const effectiveStaffName = isLikelyStaffName(staffName) ? staffName.trim() : "";
+  const hasStaff = Boolean(effectiveStaffName);
   const params = generateRandomParams(gender, rating, hasStaff);
-  
+
   console.log(`🎲 Generated params:`, params);
 
-  // スタッフ名を「推し」として扱う
-  const staffMention = staffName ? `${staffName}さん` : "スタッフ";
+  // スタッフ名を「推し」として扱う（人名でない入力は「スタッフ」にフォールバック）
+  const staffMention = effectiveStaffName ? `${effectiveStaffName}さん` : "スタッフ";
   const mentionStaff = hasStaff && Math.random() < params.staffMentionRate;
   
   // キーワードの自動言い換え用のバリエーション定義
@@ -120,7 +142,16 @@ export async function generateReview(
       "スタッフと話せて楽しい",
       "接客が良い"
     ],
-    
+    // BARVEL 本店用（カラオケ・ビリヤードなし）
+    "ダーツ・カラオケ無料": [
+      "ダーツとカラオケが無料",
+      "ダーツもカラオケもタダ",
+      "ゲームとカラオケが遊び放題",
+      "ダーツとカラオケが0円",
+      "無料でダーツとカラオケ",
+      "ダーツやカラオケで遊べる"
+    ],
+
     // CEBUOCTO用（V0デザインの良かったポイントに対応）
     "海がキレイ": ["海が透き通っていてキレイ", "透明度が高い海", "エメラルドグリーンの海", "海が本当に綺麗"],
     "スタッフが親切": ["スタッフが親切で安心", "日本人スタッフが丁寧", "スタッフの対応が良かった", "気さくで話しやすい"],
@@ -133,9 +164,15 @@ export async function generateReview(
     "景色が絶景": ["景色が絶景だった", "眺めが最高", "空と海が綺麗", "パノラマがすごい"],
     "コスパ良い": ["コスパが良い", "料金の割に充実", "お得なプラン", "価格相応以上"],
     "食事が美味しい": ["ランチが美味しかった", "ご飯も美味しい", "食事付きで満足", "地元の味が楽しめた"],
-    "一生の思い出": ["一生の思い出になった", "忘れられない体験", "また来たい", "家族にも勧めたい"]
+    "一生の思い出": ["一生の思い出になった", "忘れられない体験", "また来たい", "家族にも勧めたい"],
+
+    // BAR REPLICA用（バイブ選択）
+    "お酒が美味しい": ["お酒が美味しかった", "ドリンクの種類が豊富", "お酒が良かった", "飲み物が気に入った"],
+    "音楽・雰囲気が最高": ["音楽と雰囲気が最高", "BGMが良かった", "雰囲気が良かった", "リクエストで曲が流せて楽しい"],
+    "スタッフが面白い": ["スタッフが面白かった", "スタッフのノリが良い", "接客が楽しい", "スタッフと話して盛り上がった"],
+    "朝まで遊べる": ["朝まで遊べた", "時間を気にせず楽しめた", "遅くまで営業で助かった", "朝までいられた"]
   };
-  
+
   // 英語版の設定
   if (language === "en") {
     const companionEn: Record<string, string> = {
@@ -151,8 +188,9 @@ export async function generateReview(
     
     const keywordContextsEn: Record<string, string> = {
       "ダーツ・ビリヤード無料": "Emphasize that darts, pool, and karaoke are ALL FREE and unlimited. Mention how incredible the value is",
+      "ダーツ・カラオケ無料": "Emphasize that darts and karaoke are ALL FREE and unlimited. Mention how incredible the value is",
       "時間無制限飲み放題": "Highlight the UNLIMITED time all-you-can-drink system. No rush, stay until morning for a flat rate",
-      "出入り自由・ハシゴ酒": "Mention the wristband system that lets you leave and come back. Perfect for bar hopping in Koza",
+      "出入り自由・ハシゴ酒": "Mention the wristband system that lets you leave and come back. Perfect for bar hopping",
       "スタッフ最高": "Emphasize how fun and friendly the staff are. Great vibes, easy to talk to, never feel alone"
     };
     
@@ -161,9 +199,10 @@ export async function generateReview(
       .filter(Boolean)
       .join(". ");
     
-    const staffMentionEn = staffName ? staffName : "the staff";
-    
-    const prompt = `You're a ${genderEn} customer in your 20s-30s who visited BARVEL KOZA in Koza, Okinawa. You're writing a Google Maps review with a fun, slightly tipsy vibe.
+    const staffMentionEn = effectiveStaffName ? effectiveStaffName : "the staff";
+    const storeLocationEn = isCebuOcto ? "Cebu, Philippines" : isBarReplica ? "Nago, Okinawa" : isBarvelHonten ? "Okinawa (main store)" : "Koza, Okinawa";
+
+    const prompt = `You're a ${genderEn} customer in your 20s-30s who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review with a fun, slightly tipsy vibe.
 
 【CRITICAL】Write the ENTIRE review in ENGLISH ONLY. Do NOT use any Japanese words or characters!
 
@@ -205,7 +244,7 @@ Write ONE complete review following the rules above for a **${companionText} ${v
         messages: [
           {
             role: "system",
-            content: "You're a customer in your 20s-30s who visited BARVEL KOZA in Koza, Okinawa. Write a Google Maps review with a fun, friendly tone in ENGLISH ONLY."
+            content: `You're a customer in your 20s-30s who visited ${storeName} in ${storeLocationEn}. Write a Google Maps review with a fun, friendly tone in ENGLISH ONLY.`
           },
           {
             role: "user",
@@ -277,17 +316,26 @@ Write ONE complete review following the rules above for a **${companionText} ${v
   };
   
   // 店舗固有の設定
-  const storeSpecificSettings = isCebuOcto 
+  const storeSpecificSettings = isCebuOcto
     ? {
         storeName: "CEBUOCTO",
         locationContext: "セブ島旅行中",
         activityType: "マリンアクティビティ",
         mood: "ハイテンション、楽しかった、感謝の気持ち",
-        forbiddenWords: ["スタッフ名は出さない"], // 仕様通り
-        mandatoryEmoji: ["🌊", "🚤", "✨", "📸"] // CEBUOCTO推奨
+        forbiddenWords: ["スタッフ名は出さない"],
+        mandatoryEmoji: ["🌊", "🚤", "✨", "📸"]
+      }
+    : isBarReplica
+    ? {
+        storeName: "BAR REPLICA",
+        locationContext: "名護・みどり街",
+        activityType: "飲み",
+        mood: "楽しかった",
+        forbiddenWords: [],
+        mandatoryEmoji: []
       }
     : {
-        storeName: "BARVEL KOZA",
+        storeName,
         locationContext: isLocal ? "沖縄在住" : "旅行で沖縄訪問中",
         activityType: "飲み",
         mood: "楽しかった",
@@ -328,23 +376,37 @@ ${styleDescriptions[params.stylePattern]}
 ・助詞を省略した口語も自然に（例: ダーツ無料で良い、海きれい）
 ・読点: ${commaDescriptions[params.commaStyle]}
 ・冒頭: 毎回違う書き出しで（${companion}と${storeName}に、は使いすぎ。別の表現で）
-${isCebuOcto 
+${isCebuOcto
   ? `・観光客として。楽しかった体験を。
 ・半日プランの効率性を強調（午後は買い物など他の予定も可能）
 ・安全性と楽しさの両立を言及
 ・日本人スタッフへの感謝も自然に`
+  : isBarReplica
+  ? `・${isLocal ? "地元民として。知ってることに驚かない。" : "観光客として。"}
+・感情語: ${isFemale ? "感情を込めて" : "控えめに"}
+・強調表現（とても、すごく）: ${isFemale ? "使ってOK" : "あまり使わない"}
+${isFemale ? "・感謝の気持ちも表現OK" : ""}`
   : `・${isLocal ? "地元民として。知ってることに驚かない。" : "観光客として。"}
 ・感情語: ${isFemale ? "感情を込めて" : "控えめに"}
 ・強調表現（とても、すごく）: ${isFemale ? "使ってOK" : "あまり使わない"}
 ${isFemale ? "・感謝の気持ちも表現OK" : ""}`}
 
 【冒頭のバリエーション例】
-${isCebuOcto 
+${isCebuOcto
   ? `・セブ島で${companion}とツアー参加
 ・${params.includeTime ? params.timeContext : "旅行中に"}${companion}と体験
 ・${companion}とCEBUOCTOのツアーに
 ・セブ旅行の目玉として
 ・${companion}に誘われて参加`
+  : isBarReplica
+  ? `・${params.includeTime ? params.timeContext : "週末に"}${companion}と飲んだ
+・名護で${companion}と遊んだ
+・ハシゴ酒の締めに寄った
+・久しぶりに${companion}と
+・仕事帰りに${companion}と
+・${companion}${params.openingPattern}
+・地元の飲み屋を探して
+（「${companion}に誘われて行った」は使うなら1回だけ。他を優先）`
   : `・${params.includeTime ? params.timeContext : "週末に"}${companion}と飲んだ
 ・コザで${companion}と遊んだ
 ・ハシゴ酒の締めに寄った
@@ -360,6 +422,7 @@ ${isCebuOcto
 【禁止】
 ・同じ冒頭パターンを繰り返さない
 ・矛盾しない
+・推しスタッフ欄に人名でない文言（例: みんな素敵、覚えてない）が入っている場合は、その文字列を文中で人名として使わず「スタッフ」とだけ表記すること
 ・${rating === 5 ? "星5なのでポジティブに（大袈裟すぎない）" : `星${rating}なので適度な評価に`}
 ${rating < 5 ? "・小さな不満を入れても良い" : ""}
 

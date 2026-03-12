@@ -197,7 +197,7 @@ export default function StoreReviewBooster() {
 
   return (
     <div
-      className={`min-h-screen text-white font-sans ${isSinglePage ? "p-3 pb-16" : "p-4 pb-20"} ${
+      className={`min-h-screen text-white font-sans ${isSinglePage ? "p-4 pb-16" : "p-4 pb-20"} ${
         isCebuocto
           ? "bg-gradient-to-b from-slate-900 via-teal-950/30 to-slate-900 selection:bg-teal-500/50"
           : "bg-black selection:bg-cyan-500"
@@ -205,11 +205,11 @@ export default function StoreReviewBooster() {
     >
       {/* ヘッダーエリア */}
       <header className={`text-center animate-in slide-in-from-top duration-500 ${isSinglePage ? "py-3" : "py-6"}`}>
-        <div className="relative inline-block">
+        <div className="relative inline-block h-20 flex items-center justify-center">
           <img 
             src={storeConfig.logoPath}
             alt={storeConfig.name} 
-            className={`w-auto mx-auto animate-pulse-glow ${isSinglePage ? "h-14" : "h-24"}`}
+            className="h-20 w-auto object-contain mx-auto animate-pulse-glow"
             style={{
               filter: storeConfig.theme.logoGlow,
               animation: 'pulse-glow 2s ease-in-out infinite'
@@ -257,12 +257,9 @@ export default function StoreReviewBooster() {
         }
       `}</style>
 
-      {/* CEBUOCTO用：1ページ構成（南国テーマ・レスポンシブ） */}
+      {/* 単一ページ構成（BARVEL同様1列）順序: 評価→ご本人は？→来店タイプ→良かったポイント→誰と→推しスタッフ */}
       {isSinglePage ? (
-      <main className="max-w-xl mx-auto mt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* 左: 星 + キーワード */}
-          <div className="space-y-4">
+      <main className="max-w-md mx-auto p-4 space-y-6 mt-4">
             {storeConfig.features.rating.enabled && (
               <section className="space-y-2">
                 <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
@@ -281,6 +278,52 @@ export default function StoreReviewBooster() {
                     </button>
                   ))}
                 </div>
+              </section>
+            )}
+            {storeConfig.features.gender.enabled && (
+              <section className="space-y-2">
+                <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
+                  {language === "ja" ? "ご本人は？ 👤" : "You are? 👤"}
+                </h2>
+                <ToggleGroup
+                  type="single"
+                  value={gender}
+                  onValueChange={(value) => value && setGender(value)}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  {storeConfig.features.gender.options[language].map((option, index) => (
+                    <ToggleGroupItem
+                      key={index}
+                      value={storeConfig.features.gender.options.ja[index]}
+                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
+                    >
+                      {option}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </section>
+            )}
+            {storeConfig.features.visitType.enabled && (
+              <section className="space-y-2">
+                <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
+                  {language === "ja" ? "どんな来店でしたか？ 🚶" : "What brought you in? 🚶"}
+                </h2>
+                <ToggleGroup
+                  type="single"
+                  value={visitType}
+                  onValueChange={(value) => value && setVisitType(value)}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  {storeConfig.features.visitType.options[language].map((option, index) => (
+                    <ToggleGroupItem
+                      key={index}
+                      value={storeConfig.features.visitType.options.ja[index]}
+                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
+                    >
+                      {option}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
               </section>
             )}
             {storeConfig.features.keywords.enabled && (
@@ -309,13 +352,10 @@ export default function StoreReviewBooster() {
                 </ToggleGroup>
               </section>
             )}
-          </div>
-          {/* 右: 誰と + 性別 */}
-          <div className="space-y-4">
             {storeConfig.features.companion.enabled && (
               <section className="space-y-2">
                 <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
-                  {language === "ja" ? "誰と 👥" : "With whom 👥"}
+                  {language === "ja" ? "誰と来ましたか？ 👥" : "Who did you come with? 👥"}
                 </h2>
                 <ToggleGroup
                   type="single"
@@ -335,31 +375,19 @@ export default function StoreReviewBooster() {
                 </ToggleGroup>
               </section>
             )}
-            {storeConfig.features.gender.enabled && (
+            {storeConfig.features.staffName.enabled && (
               <section className="space-y-2">
                 <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
-                  {language === "ja" ? "あなた 👤" : "You 👤"}
+                  {language === "ja" ? "推しスタッフ（いれば）" : "Favorite staff (if any)"}
                 </h2>
-                <ToggleGroup
-                  type="single"
-                  value={gender}
-                  onValueChange={(value) => value && setGender(value)}
-                  className="grid grid-cols-2 gap-2"
-                >
-                  {storeConfig.features.gender.options[language].map((option, index) => (
-                    <ToggleGroupItem
-                      key={index}
-                      value={storeConfig.features.gender.options.ja[index]}
-                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
-                    >
-                      {option}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
+                <input
+                  value={staff}
+                  onChange={(e) => setStaff(e.target.value)}
+                  placeholder={storeConfig.features.staffName.placeholder?.[language] ?? (language === "ja" ? "いれば教えてください" : "If any")}
+                  className="w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-500 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                />
               </section>
             )}
-          </div>
-        </div>
 
         <Button 
           onClick={handleGenerate} 
@@ -427,117 +455,125 @@ export default function StoreReviewBooster() {
           </section>
         )}
 
-        {/* 2. キーワード選択 */}
+        {/* 2. ご本人は？（性別） */}
+        {storeConfig.features.gender.enabled && (
+          <section className="space-y-4">
+            <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
+              {language === "ja" ? "2. ご本人は？ 👤" : "2. You are? 👤"}
+            </h2>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <ToggleGroup
+                type="single"
+                value={gender}
+                onValueChange={(value) => value && setGender(value)}
+                className="contents"
+              >
+                {storeConfig.features.gender.options[language].map((option, index) => (
+                  <ToggleGroupItem
+                    key={index}
+                    value={storeConfig.features.gender.options.ja[index]}
+                    className="w-full min-h-[52px] flex items-center justify-center text-center bg-gray-900 border border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
+                  >
+                    {option}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+          </section>
+        )}
+
+        {/* 3. どんな来店でしたか？ */}
+        {storeConfig.features.visitType.enabled && (
+          <section className="space-y-4">
+            <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
+              {language === "ja" ? "3. どんな来店でしたか？ 🚶" : "3. What brought you in? 🚶"}
+            </h2>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <ToggleGroup
+                type="single"
+                value={visitType}
+                onValueChange={(value) => value && setVisitType(value)}
+                className="contents"
+              >
+                {storeConfig.features.visitType.options[language].map((option, index) => (
+                  <ToggleGroupItem
+                    key={index}
+                    value={storeConfig.features.visitType.options.ja[index]}
+                    className="w-full min-h-[52px] flex items-center justify-center text-center bg-gray-900 border border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
+                  >
+                    {option}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+          </section>
+        )}
+
+        {/* 4. 良かったポイント */}
         {storeConfig.features.keywords.enabled && (
           <section className="space-y-4">
             <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
-              {language === "ja" ? "2. 良かったポイントを選んでください 🎯" : "2. Select What You Enjoyed 🎯"}
+              {language === "ja" ? "4. 良かったポイントを選んでください 🎯" : "4. Select What You Enjoyed 🎯"}
             </h2>
             <p className="text-sm text-gray-400">
               {language === "ja" ? "当てはまるものをいくつでも選べます（複数選択OK）" : "Select all that apply (multiple OK)"}
             </p>
-            <ToggleGroup
-              type="multiple"
-              value={keywords}
-              onValueChange={setKeywords}
-              className="grid grid-cols-2 gap-3"
-            >
-              {storeConfig.features.keywords.options[language].map((keyword, index) => (
-                <ToggleGroupItem
-                  key={index}
-                  value={storeConfig.features.keywords.options.ja[index]}
-                  className="bg-gray-900 border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
-                >
-                  {keyword}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <ToggleGroup
+                type="multiple"
+                value={keywords}
+                onValueChange={setKeywords}
+                className="contents"
+              >
+                {storeConfig.features.keywords.options[language].map((keyword, index) => (
+                  <ToggleGroupItem
+                    key={index}
+                    value={storeConfig.features.keywords.options.ja[index]}
+                    className="w-full min-h-[52px] flex items-center justify-center text-center bg-gray-900 border border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
+                  >
+                    {keyword}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
           </section>
         )}
 
-        {/* 3. 誰と来たか */}
+        {/* 5. 誰と来たか */}
         {storeConfig.features.companion.enabled && (
           <section className="space-y-4">
             <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
-              {language === "ja" ? "3. 誰と来ましたか？👥" : "3. Who did you come with? 👥"}
+              {language === "ja" ? "5. 誰と来ましたか？ 👥" : "5. Who did you come with? 👥"}
             </h2>
-            <ToggleGroup
-              type="single"
-              value={companion}
-              onValueChange={(value) => value && setCompanion(value)}
-              className="grid grid-cols-2 gap-3"
-            >
-              {storeConfig.features.companion.options[language].map((option, index) => (
-                <ToggleGroupItem
-                  key={index}
-                  value={storeConfig.features.companion.options.ja[index]}
-                  className="bg-gray-900 border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
-                >
-                  {option}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <ToggleGroup
+                type="single"
+                value={companion}
+                onValueChange={(value) => value && setCompanion(value)}
+                className="contents"
+              >
+                {storeConfig.features.companion.options[language].map((option, index) => (
+                  <ToggleGroupItem
+                    key={index}
+                    value={storeConfig.features.companion.options.ja[index]}
+                    className="w-full min-h-[52px] flex items-center justify-center text-center bg-gray-900 border border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
+                  >
+                    {option}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
           </section>
         )}
 
-        {/* 4. 性別 */}
-        {storeConfig.features.gender.enabled && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
-              {language === "ja" ? "あなたは？👤" : "You are? 👤"}
-            </h2>
-            <ToggleGroup
-              type="single"
-              value={gender}
-              onValueChange={(value) => value && setGender(value)}
-              className="grid grid-cols-2 gap-3"
-            >
-              {storeConfig.features.gender.options[language].map((option, index) => (
-                <ToggleGroupItem
-                  key={index}
-                  value={storeConfig.features.gender.options.ja[index]}
-                  className="bg-gray-900 border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
-                >
-                  {option}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </section>
-        )}
-
-        {/* 5. 来店タイプ */}
-        {storeConfig.features.visitType.enabled && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
-              {language === "ja" ? "来店タイプ 🚶" : "Visit Type 🚶"}
-            </h2>
-            <ToggleGroup
-              type="single"
-              value={visitType}
-              onValueChange={(value) => value && setVisitType(value)}
-              className="grid grid-cols-2 gap-3"
-            >
-              {storeConfig.features.visitType.options[language].map((option, index) => (
-                <ToggleGroupItem
-                  key={index}
-                  value={storeConfig.features.visitType.options.ja[index]}
-                  className="bg-gray-900 border-gray-800 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-purple-600 data-[state=on]:text-white text-gray-400 hover:text-white transition-all px-4 py-3 text-sm font-bold rounded-xl"
-                >
-                  {option}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </section>
-        )}
-
-        {/* 6. スタッフ名 */}
+        {/* 6. 推しスタッフ（いれば） */}
         {storeConfig.features.staffName.enabled && (
           <section className="space-y-4">
             <h2 className="text-lg font-bold border-l-4 border-purple-500 pl-2">
-              {language === "ja" ? "推しスタッフ（複数OK！）" : "Favorite Staff (Optional)"}
+              {language === "ja" ? "6. 推しスタッフ（いれば）" : "6. Favorite staff (if any)"}
             </h2>
             <input
-              className="w-full bg-gray-900 border-gray-800 text-white p-4 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none placeholder:text-gray-600"
+              className="w-full bg-gray-900 border border-gray-800 text-white p-4 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none placeholder:text-gray-600"
               placeholder={storeConfig.features.staffName.placeholder[language]}
               value={staff}
               onChange={(e) => setStaff(e.target.value)}
