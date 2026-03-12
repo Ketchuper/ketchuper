@@ -1,10 +1,14 @@
 "use client";
 
+import { getAllStoreIds, getStoreConfig } from "@/config/stores";
+
 /**
  * ルート (/) = Review Booster の LP（サービス紹介・作成中用）
- * 店舗別の口コミ作成は /barvel-koza, /bar-replica, /cebuocto などへ。
+ * 店舗別の口コミ作成は /[storeId] へ。stores に追加した店舗がここに自動表示される。
  */
 export default function ReviewBoosterLP() {
+  const storeIds = getAllStoreIds();
+
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans flex flex-col items-center justify-center p-6">
       <div className="max-w-md w-full text-center space-y-8">
@@ -26,24 +30,24 @@ export default function ReviewBoosterLP() {
         <div className="space-y-3 pt-4">
           <p className="text-xs text-gray-500 uppercase tracking-wide">店舗別はこちら</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <a
-              href="/barvel-koza"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
-            >
-              BARVEL KOZA
-            </a>
-            <a
-              href="/bar-replica"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-gray-200 hover:bg-white/15 transition-colors text-sm font-medium"
-            >
-              BAR REPLICA
-            </a>
-            <a
-              href="/cebuocto"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-gray-200 hover:bg-white/15 transition-colors text-sm font-medium"
-            >
-              CEBUOCTO
-            </a>
+            {storeIds.map((storeId, index) => {
+              const config = getStoreConfig(storeId);
+              if (!config) return null;
+              const isFirst = index === 0;
+              return (
+                <a
+                  key={storeId}
+                  href={`/${storeId}`}
+                  className={
+                    isFirst
+                      ? "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
+                      : "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-gray-200 hover:bg-white/15 transition-colors text-sm font-medium"
+                  }
+                >
+                  {config.name}
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
