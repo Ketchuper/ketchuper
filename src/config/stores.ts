@@ -154,7 +154,7 @@ export const stores: Record<string, StoreConfig> = {
     id: "barvel",
     name: "BARVEL",
     nameEn: "BARVEL",
-    logoPath: "/barvel-logo.png",
+    logoPath: "/barvel-honten-logo.png",
     googleMapsUrl: "https://maps.google.com/",
     placeId: "",
 

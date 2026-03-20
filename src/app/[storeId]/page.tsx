@@ -171,7 +171,7 @@ export default function StoreReviewBooster() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-dvh bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">❌</div>
           <div className="text-xl mb-4">店舗が見つかりません</div>
@@ -183,7 +183,7 @@ export default function StoreReviewBooster() {
 
   if (!storeConfig) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-dvh bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">⏳</div>
           <div className="text-xl">読み込み中...</div>
@@ -196,8 +196,13 @@ export default function StoreReviewBooster() {
   const isCebuocto = storeId === "cebuocto";
 
   return (
+    /* 下余白: base + safe-area。pb のみ変更のため max-w / grid 列数には影響しない */
     <div
-      className={`min-h-screen text-white font-sans ${isSinglePage ? "p-4 pb-16" : "p-4 pb-20"} ${
+      className={`min-h-dvh text-white font-sans pt-4 px-4 ${
+        isSinglePage
+          ? "pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
+          : "pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))]"
+      } ${
         isCebuocto
           ? "bg-gradient-to-b from-slate-900 via-teal-950/30 to-slate-900 selection:bg-teal-500/50"
           : "bg-black selection:bg-cyan-500"
@@ -205,11 +210,12 @@ export default function StoreReviewBooster() {
     >
       {/* ヘッダーエリア */}
       <header className={`text-center animate-in slide-in-from-top duration-500 ${isSinglePage ? "py-3" : "py-6"}`}>
-        <div className="relative inline-block h-20 flex items-center justify-center">
+        {/* 横長ロゴは max-w-full でビューポート外へはみ出さない */}
+        <div className="relative flex h-20 w-full max-w-full items-center justify-center px-1">
           <img 
             src={storeConfig.logoPath}
             alt={storeConfig.name} 
-            className="h-20 w-auto object-contain mx-auto animate-pulse-glow"
+            className="h-20 max-h-20 w-auto max-w-full object-contain mx-auto animate-pulse-glow"
             style={{
               filter: storeConfig.theme.logoGlow,
               animation: 'pulse-glow 2s ease-in-out infinite'
@@ -239,7 +245,7 @@ export default function StoreReviewBooster() {
               background: `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})`
             } : undefined}
           >
-            🇺🇸 English
+            🌐 English
           </button>
         </div>
       </header>
@@ -257,9 +263,9 @@ export default function StoreReviewBooster() {
         }
       `}</style>
 
-      {/* 単一ページ構成（BARVEL同様1列）順序: 評価→ご本人は？→来店タイプ→良かったポイント→誰と→推しスタッフ */}
+      {/* 単一ページ構成（良かったポイントは2×2デフォルト）順序: 評価→ご本人は？→来店タイプ→良かったポイント→誰と→推しスタッフ */}
       {isSinglePage ? (
-      <main className="max-w-md mx-auto p-4 space-y-6 mt-4">
+      <main className="max-w-2xl mx-auto w-full px-0 sm:px-2 space-y-6 mt-4">
             {storeConfig.features.rating.enabled && (
               <section className="space-y-2">
                 <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
@@ -285,22 +291,24 @@ export default function StoreReviewBooster() {
                 <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
                   {language === "ja" ? "ご本人は？ 👤" : "You are? 👤"}
                 </h2>
-                <ToggleGroup
-                  type="single"
-                  value={gender}
-                  onValueChange={(value) => value && setGender(value)}
-                  className="grid grid-cols-2 gap-2"
-                >
-                  {storeConfig.features.gender.options[language].map((option, index) => (
-                    <ToggleGroupItem
-                      key={index}
-                      value={storeConfig.features.gender.options.ja[index]}
-                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
-                    >
-                      {option}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <ToggleGroup
+                    type="single"
+                    value={gender}
+                    onValueChange={(value) => value && setGender(value)}
+                    className="contents"
+                  >
+                    {storeConfig.features.gender.options[language].map((option, index) => (
+                      <ToggleGroupItem
+                        key={index}
+                        value={storeConfig.features.gender.options.ja[index]}
+                        className="w-full min-h-[52px] min-w-0 shrink flex items-center justify-center text-center bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-bold rounded-xl"
+                      >
+                        {option}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
               </section>
             )}
             {storeConfig.features.visitType.enabled && (
@@ -308,22 +316,24 @@ export default function StoreReviewBooster() {
                 <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
                   {language === "ja" ? "どんな来店でしたか？ 🚶" : "What brought you in? 🚶"}
                 </h2>
-                <ToggleGroup
-                  type="single"
-                  value={visitType}
-                  onValueChange={(value) => value && setVisitType(value)}
-                  className="grid grid-cols-2 gap-2"
-                >
-                  {storeConfig.features.visitType.options[language].map((option, index) => (
-                    <ToggleGroupItem
-                      key={index}
-                      value={storeConfig.features.visitType.options.ja[index]}
-                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
-                    >
-                      {option}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <ToggleGroup
+                    type="single"
+                    value={visitType}
+                    onValueChange={(value) => value && setVisitType(value)}
+                    className="contents"
+                  >
+                    {storeConfig.features.visitType.options[language].map((option, index) => (
+                      <ToggleGroupItem
+                        key={index}
+                        value={storeConfig.features.visitType.options.ja[index]}
+                        className="w-full min-h-[52px] min-w-0 shrink flex items-center justify-center text-center bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-bold rounded-xl"
+                      >
+                        {option}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
               </section>
             )}
             {storeConfig.features.keywords.enabled && (
@@ -334,22 +344,24 @@ export default function StoreReviewBooster() {
                 <p className="text-xs text-gray-400">
                   {language === "ja" ? "当てはまるものをいくつでも選べます（複数選択OK）" : "Select all that apply (multiple OK)"}
                 </p>
-                <ToggleGroup
-                  type="multiple"
-                  value={keywords}
-                  onValueChange={setKeywords}
-                  className="grid grid-cols-1 gap-2"
-                >
-                  {storeConfig.features.keywords.options[language].map((keyword, index) => (
-                    <ToggleGroupItem
-                      key={index}
-                      value={storeConfig.features.keywords.options.ja[index]}
-                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
-                    >
-                      {keyword}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <ToggleGroup
+                    type="multiple"
+                    value={keywords}
+                    onValueChange={setKeywords}
+                    className="contents"
+                  >
+                    {storeConfig.features.keywords.options[language].map((keyword, index) => (
+                      <ToggleGroupItem
+                        key={index}
+                        value={storeConfig.features.keywords.options.ja[index]}
+                        className="w-full min-h-[52px] min-w-0 shrink flex items-center justify-center text-center bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-bold rounded-xl"
+                      >
+                        {keyword}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
               </section>
             )}
             {storeConfig.features.companion.enabled && (
@@ -357,22 +369,24 @@ export default function StoreReviewBooster() {
                 <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">
                   {language === "ja" ? "誰と来ましたか？ 👥" : "Who did you come with? 👥"}
                 </h2>
-                <ToggleGroup
-                  type="single"
-                  value={companion}
-                  onValueChange={(value) => value && setCompanion(value)}
-                  className="grid grid-cols-2 gap-2"
-                >
-                  {storeConfig.features.companion.options[language].map((option, index) => (
-                    <ToggleGroupItem
-                      key={index}
-                      value={storeConfig.features.companion.options.ja[index]}
-                      className="bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-medium rounded-xl"
-                    >
-                      {option}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <ToggleGroup
+                    type="single"
+                    value={companion}
+                    onValueChange={(value) => value && setCompanion(value)}
+                    className="contents"
+                  >
+                    {storeConfig.features.companion.options[language].map((option, index) => (
+                      <ToggleGroupItem
+                        key={index}
+                        value={storeConfig.features.companion.options.ja[index]}
+                        className="w-full min-h-[52px] min-w-0 shrink flex items-center justify-center text-center bg-white/5 border border-white/10 data-[state=on]:border-teal-400/50 data-[state=on]:bg-teal-500/20 data-[state=on]:text-teal-200 text-gray-400 hover:text-white transition-all px-3 py-2.5 text-sm font-bold rounded-xl"
+                      >
+                        {option}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
               </section>
             )}
             {storeConfig.features.staffName.enabled && (
@@ -392,13 +406,13 @@ export default function StoreReviewBooster() {
         <Button 
           onClick={handleGenerate} 
           disabled={loading || (storeConfig.features.keywords.enabled && keywords.length === 0)}
-          className="w-full py-5 text-lg font-black rounded-xl mt-6 transition-all active:scale-95 disabled:opacity-50 text-white"
+          className="w-full py-8 text-xl font-black rounded-2xl mt-6 transition-all active:scale-95 disabled:opacity-50 text-white shadow-lg"
           style={{
             background: `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})`,
-            boxShadow: `0 4px 20px ${storeConfig.theme.primaryColor}40`
+            boxShadow: `0 0 20px ${storeConfig.theme.primaryColor}80`
           }}
         >
-          {loading ? <Loader2 className="animate-spin mr-2 h-5 w-5" /> : <Sparkles className="mr-2 h-5 w-5" />}
+          {loading ? <Loader2 className="animate-spin mr-2 h-6 w-6" /> : <Sparkles className="mr-2 h-6 w-6" />}
           {language === "ja" ? "口コミを自動作成 🪄" : "Generate Review 🪄"}
         </Button>
 
@@ -414,16 +428,16 @@ export default function StoreReviewBooster() {
             <div className={`rounded-xl p-2.5 text-xs ${isCebuocto ? "bg-teal-500/10 border border-teal-500/30 text-gray-300" : "bg-cyan-500/10 border border-cyan-500/30 text-gray-300"}`}>
               {language === "ja" ? "①コピー → ②Googleマップで投稿 → ③ペースト" : "①Copy → ②Open Google Maps → ③Paste"}
             </div>
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-3">
               <Button
                 onClick={handleCopy}
-                className={`w-full py-4 font-bold rounded-xl ${copied ? "bg-green-600 text-white" : "text-white"}`}
+                className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg ${copied ? "bg-green-600 text-white" : "text-white"}`}
                 style={copied ? undefined : { background: `linear-gradient(to right, ${storeConfig.theme.primaryColor}, ${storeConfig.theme.secondaryColor})` }}
               >
-                {copied ? <><Copy className="mr-2 h-4 w-4 inline" />{language === "ja" ? "✅ コピー完了" : "✅ Copied"}</> : <><Copy className="mr-2 h-4 w-4 inline" />{language === "ja" ? "① コピー 📋" : "① Copy 📋"}</>}
+                {copied ? <><Copy className="mr-2 h-5 w-5 inline" />{language === "ja" ? "✅ コピー完了" : "✅ Copied"}</> : <><Copy className="mr-2 h-5 w-5 inline" />{language === "ja" ? "① コピー 📋" : "① Copy 📋"}</>}
               </Button>
-              <Button onClick={handleOpenGoogleMaps} disabled={!copied} className={`w-full py-4 font-bold rounded-xl ${copied ? "bg-white text-slate-800 hover:bg-gray-100" : "bg-gray-700 text-gray-400 cursor-not-allowed"}`}>
-                <ExternalLink className="mr-2 h-4 w-4" /> {language === "ja" ? "② Googleマップで投稿 🚀" : "② Post on Google Maps 🚀"}
+              <Button onClick={handleOpenGoogleMaps} disabled={!copied} className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg ${copied ? "bg-white text-slate-800 hover:bg-gray-100" : "bg-gray-700 text-gray-400 cursor-not-allowed"}`}>
+                <ExternalLink className="mr-2 h-5 w-5" /> {language === "ja" ? "② Googleマップで投稿 🚀" : "② Post on Google Maps 🚀"}
               </Button>
             </div>
           </Card>

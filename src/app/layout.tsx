@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Review Booster | Map Engine",
   description: "Google口コミの下書きをAIで自動作成。Map Engine の Review Booster サービスです。",
+};
+
+/** iOS Safari: ノッチ周りで env(safe-area-inset-*) を有効化 */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

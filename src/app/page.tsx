@@ -10,7 +10,7 @@ export default function ReviewBoosterLP() {
   const storeIds = getAllStoreIds();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans flex flex-col items-center justify-center p-6">
+    <div className="min-h-dvh bg-slate-950 text-white font-sans flex flex-col items-center justify-center pt-6 px-6 pb-[calc(2.25rem+env(safe-area-inset-bottom,0px))] sm:px-8">
       <div className="max-w-md w-full text-center space-y-8">
         <div>
           <p className="text-sm uppercase tracking-widest text-cyan-400/80 mb-2">Map Engine</p>

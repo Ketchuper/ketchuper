@@ -124,6 +124,20 @@
   }
 }
 
+/* iOS Safari: 100vh とアドレスバーのずれを抑え、バンドスクロール後も高さが破綻しにくくする */
+html {
+  min-height: 100dvh;
+}
+body {
+  min-height: 100dvh;
+}
+@supports not (min-height: 100dvh) {
+  html,
+  body {
+    min-height: 100vh;
+  }
+}
+
 /* CEBUOCTO専用：背面の控えめなアニメーション（南国感を出しつつフォームの邪魔をしない） */
 .cebuocto-bg {
   animation: cebuocto-bg-breath 20s ease-in-out infinite alternate;

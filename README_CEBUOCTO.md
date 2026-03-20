@@ -1,6 +1,6 @@
-# 🌊 CEBUOCTO（セブオクト）設定完了
+# 🌊 CEBUOCTO（セブオクト）
 
-新店舗「CEBUOCTO」の実装が完了しました！
+**Review Booster** 配下の店舗の一つ。セブ島のマリンツアー向け口コミ下書き生成です。
 
 ---
 
@@ -13,8 +13,9 @@ http://localhost:3000/cebuocto
 
 ### **本番環境**
 ```
-https://barvel-review.vercel.app/cebuocto
+https://review-booster.vercel.app/cebuocto
 ```
+（Vercel のプロジェクト名を review-booster にしている場合）
 
 ---
 
@@ -25,7 +26,7 @@ https://barvel-review.vercel.app/cebuocto
 CEBUOCTOのロゴ画像を以下の場所に配置してください：
 
 ```
-/Users/CBDs/MEO Auto/barvel-review/public/cebuocto-logo.png
+（このリポジトリ）/public/cebuocto-logo.png
 ```
 
 **推奨サイズ**: 高さ200px程度（横幅は自動調整）
@@ -102,7 +103,7 @@ CEBUOCTOのロゴ画像を以下の場所に配置してください：
 ロゴ配置後、以下のコマンドでデプロイ：
 
 ```bash
-cd "/Users/CBDs/MEO Auto/barvel-review"
+cd "（このリポジトリのパス）"
 git add .
 git commit -m "Add CEBUOCTO store configuration"
 git push
@@ -112,13 +113,11 @@ Vercelが自動デプロイします（1〜2分）。
 
 ---
 
-## 📊 現在の店舗一覧
+## 📊 Review Booster 配下の店舗
 
-| 店舗ID | URL | 状態 |
-|--------|-----|------|
+| 店舗ID | パス | 状態 |
+|--------|------|------|
 | barvel-koza | `/` または `/barvel-koza` | ✅ 稼働中 |
-| cebuocto | `/cebuocto` | 🆕 実装完了 |
+| cebuocto | `/cebuocto` | ✅ 稼働中（南国テーマ・専用ページ） |
 
----
-
-次の店舗追加も同様に`stores.ts`に追加するだけ！
+新規店舗の追加方法は [docs/店舗管理.md](docs/店舗管理.md) を参照。

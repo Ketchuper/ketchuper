@@ -95,11 +95,11 @@ export default function CebuoctoReviewPage() {
   };
 
   return (
-    <div className="min-h-screen text-slate-800 font-sans antialiased cebuocto-bg bg-gradient-to-b from-sky-200 via-amber-50/90 to-orange-100">
+    <div className="min-h-dvh text-slate-800 font-sans antialiased cebuocto-bg bg-gradient-to-b from-sky-200 via-amber-50/90 to-orange-100">
       {/* 背面のグラデーション（z-index用のレイヤー） */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-sky-200 via-amber-50/90 to-orange-100" />
 
-      <main className="relative mx-auto max-w-lg px-4 py-6 sm:py-10">
+      <main className="relative mx-auto max-w-lg px-4 pt-6 sm:pt-10 pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))]">
         {/* CEBUOCTO ロゴ（トップ） */}
         <div className="flex justify-center pb-4">
           <img
