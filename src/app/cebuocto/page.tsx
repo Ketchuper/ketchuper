@@ -8,12 +8,17 @@ import { Loader2, Copy, ExternalLink, Sparkles, Star } from "lucide-react";
 
 function getClientId(): string {
   if (typeof window === "undefined") return "server";
-  let id = sessionStorage.getItem("cebuocto-client-id");
-  if (!id) {
-    id = `cebuocto-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-    sessionStorage.setItem("cebuocto-client-id", id);
+  const key = "cebuocto-client-id";
+  try {
+    let id = sessionStorage.getItem(key);
+    if (!id) {
+      id = `cebuocto-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+      sessionStorage.setItem(key, id);
+    }
+    return id;
+  } catch {
+    return `cebuocto-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   }
-  return id;
 }
 
 const KEYWORDS_JA = [

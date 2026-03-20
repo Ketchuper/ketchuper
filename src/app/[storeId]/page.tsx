@@ -13,13 +13,20 @@ import { Loader2, Copy, ExternalLink, Sparkles, Star } from "lucide-react";
 // クライアントIDを生成・保持（店舗ごと）
 function getClientId(storeId: string): string {
   if (typeof window === "undefined") return "server";
-  
-  let clientId = sessionStorage.getItem(`${storeId}-client-id`);
-  if (!clientId) {
-    clientId = `${storeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem(`${storeId}-client-id`, clientId);
+
+  // iOS Safari / 内部ブラウザ等で sessionStorage が無効なケースがあるためガードする
+  // ここで例外を投げるとコンポーネントがクラッシュし、白画面になることがある。
+  const key = `${storeId}-client-id`;
+  try {
+    let clientId = sessionStorage.getItem(key);
+    if (!clientId) {
+      clientId = `${storeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      sessionStorage.setItem(key, clientId);
+    }
+    return clientId;
+  } catch {
+    return `${storeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
-  return clientId;
 }
 
 export default function StoreReviewBooster() {
