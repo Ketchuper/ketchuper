@@ -363,6 +363,80 @@ export const stores: Record<string, StoreConfig> = {
     singlePageLayout: true
   },
 
+  // 販促LPは /mimosa-koza 、口コミUIは /mimosa-koza/review（専用ページ）。stores は口コミ生成用。
+  "mimosa-koza": {
+    id: "mimosa-koza",
+    name: "MIMO$A KOZA",
+    nameEn: "MIMO$A KOZA",
+    logoPath: "/mimosa-koza/logo-sm.png",
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=MIMOSA+KOZA+Okinawa",
+    placeId: "",
+
+    theme: {
+      primaryColor: "#2ba61b",
+      secondaryColor: "#c4b59a",
+      logoGlow: "drop-shadow(0 0 16px rgba(43, 166, 27, 0.45))"
+    },
+
+    features: {
+      keywords: {
+        enabled: true,
+        options: {
+          ja: [
+            "一点物の古着が刺さる",
+            "音楽とカルチャーの空気感",
+            "スタッフのセンスが良い",
+            "コザらしいストリート感"
+          ],
+          en: [
+            "Unique vintage finds",
+            "Music & culture vibe",
+            "Great staff taste",
+            "Koza street energy"
+          ]
+        }
+      },
+      companion: {
+        enabled: true,
+        options: {
+          ja: ["友達", "恋人", "一人", "家族"],
+          en: ["Friends", "Partner", "Solo", "Family"]
+        }
+      },
+      gender: {
+        enabled: true,
+        options: {
+          ja: ["男性", "女性"],
+          en: ["Male", "Female"]
+        }
+      },
+      visitType: {
+        enabled: true,
+        options: {
+          ja: ["地元", "観光"],
+          en: ["Local", "Tourist"]
+        }
+      },
+      staffName: {
+        enabled: true,
+        placeholder: {
+          ja: "いれば教えてください（名前・特徴どちらでもOK）",
+          en: "If any (name or description OK)"
+        }
+      },
+      rating: {
+        enabled: true,
+        default: 5
+      }
+    },
+
+    promptContext: {
+      ja: "沖縄市コザのコンセプトショップ『MIMO$A KOZA（ミモザ コザ）』。古着×音楽を軸にしたアパレル＆カルチャー拠点。ストリートカルチャーを体現する一点物と、コミュニティの場づくりが特徴。",
+      en: "MIMO$A KOZA, a concept shop in Koza, Okinawa City. Apparel & culture hub built around vintage clothing × music. Known for unique street finds and community energy."
+    },
+    singlePageLayout: true
+  },
+
   // マスターテンプレート（新規店舗用のコピー元。質問項目・UIはBARVELと同じ。名前・ロゴ・URL・キーワードだけ差し替えて使う）
   "_template": {
     id: "_template",
