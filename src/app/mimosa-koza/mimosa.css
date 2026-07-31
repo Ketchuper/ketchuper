@@ -1,0 +1,92 @@
+.mimosa-koza-root {
+  --mk-bg: #0a0a0a;
+  --mk-fg: #f4f4f0;
+  --mk-muted: #8a8a84;
+  --mk-line: rgba(244, 244, 240, 0.12);
+  --mk-green: #2ba61b;
+  --mk-green-soft: rgba(43, 166, 27, 0.18);
+  --mk-sand: #c4b59a;
+  --font-display: var(--font-mimosa-display), "Arial Black", sans-serif;
+  --font-body: var(--font-mimosa-body), "Hiragino Sans", sans-serif;
+  color: var(--mk-fg);
+  background: var(--mk-bg);
+  font-family: var(--font-body);
+  min-height: 100dvh;
+}
+
+.mimosa-koza-root .mk-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.mimosa-koza-root .mk-neon {
+  color: var(--mk-green);
+  text-shadow: 0 0 24px rgba(43, 166, 27, 0.35);
+}
+
+@keyframes mk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mk-pulse-line {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleX(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes mk-grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-2%, -2%);
+  }
+}
+
+.mk-rise {
+  animation: mk-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mk-rise-delay-1 {
+  animation-delay: 0.12s;
+}
+
+.mk-rise-delay-2 {
+  animation-delay: 0.28s;
+}
+
+.mk-rise-delay-3 {
+  animation-delay: 0.44s;
+}
+
+.mk-pulse-line {
+  transform-origin: left center;
+  animation: mk-pulse-line 3.2s ease-in-out infinite;
+}
+
+.mk-grain {
+  pointer-events: none;
+  position: absolute;
+  inset: -20%;
+  opacity: 0.07;
+  background-image: radial-gradient(circle at 20% 20%, #fff 0.6px, transparent 0.7px),
+    radial-gradient(circle at 80% 40%, #fff 0.5px, transparent 0.6px),
+    radial-gradient(circle at 40% 80%, #fff 0.55px, transparent 0.65px);
+  background-size: 120px 120px, 90px 90px, 140px 140px;
+  animation: mk-grain 8s linear infinite;
+}

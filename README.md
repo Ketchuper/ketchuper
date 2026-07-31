@@ -11,6 +11,7 @@
 | サービス | **Review Booster** | Google口コミ下書きをAIで生成するWebサービス |
 | 店舗 | **BARVEL KOZA** | 有料で実証実験中（沖縄コザのバー） |
 | 店舗 | **CEBUOCTO** | 営業代理点（フィリピン・セブ島のマリンツアー） |
+| 店舗 | **MIMO$A KOZA** | 古着×音楽コンセプトショップ（販促LP + 口コミ） |
 | 店舗 | （今後追加） | Review Booster の下に `/{店舗ID}` で追加 |
 
 - 店舗ごとの設定は **`src/config/stores.ts`** で管理。新規店舗もここに追加し、パスは **`/{店舗ID}`** にします。
@@ -23,6 +24,7 @@
 |------|------|------|
 | BARVEL KOZA | `/` または `/barvel-koza` | トップを割り当て（NFC用） |
 | CEBUOCTO | `/cebuocto` | 南国テーマ・1ページ・専用UI |
+| MIMO$A KOZA | `/mimosa-koza` | 8/15販促LP。口コミは `/mimosa-koza/review` |
 | （新規店舗） | `/{店舗ID}` | `stores.ts` に追加すれば `[storeId]` で表示。詳細は [docs/店舗管理.md](docs/店舗管理.md) |
 
 ### 現在見れない場合の主な原因と確認

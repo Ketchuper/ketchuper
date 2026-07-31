@@ -83,8 +83,23 @@ export async function generateReview(
   const isCebuOcto = storeId === "cebuocto";
   const isBarReplica = storeId === "bar-replica";
   const isBarvelHonten = storeId === "barvel";
-  const storeName = isCebuOcto ? "CEBUOCTO" : isBarReplica ? "BAR REPLICA" : isBarvelHonten ? "BARVEL" : "BARVEL KOZA";
-  const storeContext = isCebuOcto ? "セブ島" : isBarReplica ? "名護・みどり街" : isBarvelHonten ? "沖縄（本店）" : "沖縄コザ";
+  const isMimosaKoza = storeId === "mimosa-koza";
+  const storeName = isCebuOcto
+    ? "CEBUOCTO"
+    : isBarReplica
+    ? "BAR REPLICA"
+    : isBarvelHonten
+    ? "BARVEL"
+    : isMimosaKoza
+    ? "MIMO$A KOZA"
+    : "BARVEL KOZA";
+  const storeContext = isCebuOcto
+    ? "セブ島"
+    : isBarReplica
+    ? "名護・みどり街"
+    : isBarvelHonten
+    ? "沖縄（本店）"
+    : "沖縄コザ";
   // レート制限チェック（クライアントIDベース）
   const rateLimitResult = checkSimpleRateLimit(clientId);
 
@@ -170,7 +185,33 @@ export async function generateReview(
     "お酒が美味しい": ["お酒が美味しかった", "ドリンクの種類が豊富", "お酒が良かった", "飲み物が気に入った"],
     "音楽・雰囲気が最高": ["音楽と雰囲気が最高", "BGMが良かった", "雰囲気が良かった", "リクエストで曲が流せて楽しい"],
     "スタッフが面白い": ["スタッフが面白かった", "スタッフのノリが良い", "接客が楽しい", "スタッフと話して盛り上がった"],
-    "朝まで遊べる": ["朝まで遊べた", "時間を気にせず楽しめた", "遅くまで営業で助かった", "朝までいられた"]
+    "朝まで遊べる": ["朝まで遊べた", "時間を気にせず楽しめた", "遅くまで営業で助かった", "朝までいられた"],
+
+    // MIMO$A KOZA用（古着×音楽）
+    "一点物の古着が刺さる": [
+      "一点物の古着が良かった",
+      "他では見かけない服があった",
+      "掘り出し物が見つかった",
+      "ヴィンテージが刺さった"
+    ],
+    "音楽とカルチャーの空気感": [
+      "音楽とカルチャーの空気感が良い",
+      "BGMと店の雰囲気が合ってる",
+      "ストリートな空気が良かった",
+      "カルチャー感がある店"
+    ],
+    "スタッフのセンスが良い": [
+      "スタッフのセンスが良い",
+      "コーディネートの相談がしやすい",
+      "接客のセンスがある",
+      "おすすめが的確だった"
+    ],
+    "コザらしいストリート感": [
+      "コザらしいストリート感",
+      "コザの空気が詰まってる",
+      "ローカルなストリート感がある",
+      "沖縄市らしい雰囲気"
+    ]
   };
 
   // 英語版の設定
@@ -191,7 +232,11 @@ export async function generateReview(
       "ダーツ・カラオケ無料": "Emphasize that darts and karaoke are ALL FREE and unlimited. Mention how incredible the value is",
       "時間無制限飲み放題": "Highlight the UNLIMITED time all-you-can-drink system. No rush, stay until morning for a flat rate",
       "出入り自由・ハシゴ酒": "Mention the wristband system that lets you leave and come back. Perfect for bar hopping",
-      "スタッフ最高": "Emphasize how fun and friendly the staff are. Great vibes, easy to talk to, never feel alone"
+      "スタッフ最高": "Emphasize how fun and friendly the staff are. Great vibes, easy to talk to, never feel alone",
+      "一点物の古着が刺さる": "Highlight unique one-of-a-kind vintage pieces you can't find elsewhere",
+      "音楽とカルチャーの空気感": "Mention the music and street-culture atmosphere of the shop",
+      "スタッフのセンスが良い": "Emphasize staff styling taste and helpful outfit advice",
+      "コザらしいストリート感": "Call out the authentic Koza street energy"
     };
     
     const selectedContextsEn = keywords
@@ -200,9 +245,19 @@ export async function generateReview(
       .join(". ");
     
     const staffMentionEn = effectiveStaffName ? effectiveStaffName : "the staff";
-    const storeLocationEn = isCebuOcto ? "Cebu, Philippines" : isBarReplica ? "Nago, Okinawa" : isBarvelHonten ? "Okinawa (main store)" : "Koza, Okinawa";
+    const storeLocationEn = isCebuOcto
+      ? "Cebu, Philippines"
+      : isBarReplica
+      ? "Nago, Okinawa"
+      : isBarvelHonten
+      ? "Okinawa (main store)"
+      : "Koza, Okinawa";
 
-    const prompt = `You're a ${genderEn} customer in your 20s-30s who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review with a fun, slightly tipsy vibe.
+    const vibeLine = isMimosaKoza
+      ? "You're writing a Google Maps review with a stylish, street-culture vibe (not a drunk-bar tone)."
+      : "You're writing a Google Maps review with a fun, slightly tipsy vibe.";
+
+    const prompt = `You're a ${genderEn} customer in your 20s-30s who visited ${storeName} in ${storeLocationEn}. ${vibeLine}
 
 【CRITICAL】Write the ENTIRE review in ENGLISH ONLY. Do NOT use any Japanese words or characters!
 
@@ -334,6 +389,15 @@ Write ONE complete review following the rules above for a **${companionText} ${v
         forbiddenWords: [],
         mandatoryEmoji: []
       }
+    : isMimosaKoza
+    ? {
+        storeName: "MIMO$A KOZA",
+        locationContext: isLocal ? "沖縄在住" : "旅行で沖縄訪問中",
+        activityType: "古着・ショッピング",
+        mood: "センスが良い、空気感が好き、また来たい",
+        forbiddenWords: ["飲み放題", "ダーツ", "バーで酔った"],
+        mandatoryEmoji: []
+      }
     : {
         storeName,
         locationContext: isLocal ? "沖縄在住" : "旅行で沖縄訪問中",
@@ -381,6 +445,11 @@ ${isCebuOcto
 ・半日プランの効率性を強調（午後は買い物など他の予定も可能）
 ・安全性と楽しさの両立を言及
 ・日本人スタッフへの感謝も自然に`
+  : isMimosaKoza
+  ? `・${isLocal ? "地元民として。" : "観光客として。"}古着屋・カルチャーショップとして書く（バーではない）。
+・一点物・雰囲気・センスの話を優先。泥酔・飲み放題の表現は禁止。
+・感情語: ${isFemale ? "感情を込めてOK" : "控えめに"}
+・禁止語: ${storeSpecificSettings.forbiddenWords.join("、") || "なし"}`
   : isBarReplica
   ? `・${isLocal ? "地元民として。知ってることに驚かない。" : "観光客として。"}
 ・感情語: ${isFemale ? "感情を込めて" : "控えめに"}
@@ -398,6 +467,13 @@ ${isCebuOcto
 ・${companion}とCEBUOCTOのツアーに
 ・セブ旅行の目玉として
 ・${companion}に誘われて参加`
+  : isMimosaKoza
+  ? `・コザで${companion}と古着を見に
+・${params.includeTime ? params.timeContext : "休みの日に"}${companion}とMIMO$A KOZAへ
+・ストリート系の店を探して寄った
+・一点物を探しに来た
+・${companion}に誘われて寄った
+・音楽の空気感が気になって入った`
   : isBarReplica
   ? `・${params.includeTime ? params.timeContext : "週末に"}${companion}と飲んだ
 ・名護で${companion}と遊んだ
