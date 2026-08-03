@@ -67,13 +67,13 @@ export default function MarineHubBookingPage() {
       <main className="relative mx-auto flex w-full max-w-lg flex-col gap-10 px-5 pb-16 pt-10 sm:px-8">
         <header className="space-y-4">
           <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--mh-accent)]">
-            {marineHub.brand}
+            MARINE HUB · {marineHub.operator}
           </p>
           <h1
             className="text-4xl leading-tight tracking-tight sm:text-5xl"
             style={{ fontFamily: "var(--font-mh-display), Georgia, serif" }}
           >
-            {marineHub.operator}
+            {marineHub.brand}
           </h1>
           <p className="max-w-md text-base leading-relaxed text-white/85">
             {marineHub.tagline}
