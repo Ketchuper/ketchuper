@@ -1,3 +1,18 @@
+export type MarineHubHotel = {
+  /** QRの ?hotel= と貸出ログで使う固定表記 */
+  id: string;
+  /** 表示名（パンフ・LP用） */
+  label: string;
+  /** official = まず置く2件 */
+  tier: "official" | "pipeline";
+  /** 置き場所メモ（フロント横など） */
+  placeHint: string;
+  /** 初回置く部数の目安 */
+  initialQty: number;
+  /** ホテル正式名が分かったら埋める。空なら label を印刷に使う */
+  formalName: string;
+};
+
 export type MarineHubConfig = {
   brand: string;
   operator: string;
@@ -15,6 +30,19 @@ export type MarineHubConfig = {
   mapsUrl: string;
   qrTargetPath: string;
   qrFallbackUrl: string;
+  /** 今週の本命：シュノーケルレンタル */
+  snorkelRental: {
+    productName: string;
+    tagline: string;
+    supportLine: string;
+    includes: ReadonlyArray<string>;
+    howTo: ReadonlyArray<{ title: string; detail: string }>;
+    priceHint: string;
+    depositHint: string;
+    qrTargetPath: string;
+  };
+  /** オフィシャル紹介2件を先頭に。正式名が分かり次第 formalName / label を更新 */
+  hotels: ReadonlyArray<MarineHubHotel>;
   plans: ReadonlyArray<{
     id: string;
     name: string;
@@ -47,6 +75,40 @@ export const marineHub: MarineHubConfig = {
 
   qrTargetPath: "/marine-hub",
   qrFallbackUrl: "https://cebuocto.com/",
+
+  snorkelRental: {
+    productName: "シュノーケルレンタル",
+    tagline: "ホテルで借りて、そのまま海へ。",
+    supportLine: "マスク・シュノーケル・フィン。日本語で受付。",
+    includes: ["マスク", "シュノーケル", "フィン", "使い方の案内（日本語）"],
+    howTo: [
+      { title: "QRまたは電話", detail: "希望日時・人数・ホテル名を送る" },
+      { title: "受取", detail: "ホテル受取 or 指定場所（要相談）" },
+      { title: "返却", detail: "返却場所・時間を申し込み時に確定" },
+    ],
+    priceHint: "料金（印刷前に記入）",
+    depositHint: "デポジット有無（印刷前に記入）",
+    qrTargetPath: "/marine-hub/snorkel-rental",
+  },
+
+  hotels: [
+    {
+      id: "official-1",
+      label: "オフィシャルホテル①",
+      tier: "official",
+      placeHint: "フロント横ラック（要確認）",
+      initialQty: 30,
+      formalName: "",
+    },
+    {
+      id: "official-2",
+      label: "オフィシャルホテル②",
+      tier: "official",
+      placeHint: "フロント横ラック（要確認）",
+      initialQty: 30,
+      formalName: "",
+    },
+  ],
 
   plans: [
     {
@@ -96,11 +158,29 @@ export function getMarineHubPrimaryCta(): { label: string; href: string } {
 }
 
 /** QR用の絶対URLを組み立てる（ブラウザ上では origin を優先） */
-export function buildMarineHubBookingUrl(origin?: string, hotel?: string): string {
+export function buildMarineHubBookingUrl(
+  origin?: string,
+  hotel?: string,
+  path: string = marineHub.qrTargetPath
+): string {
   const base = origin
-    ? `${origin.replace(/\/$/, "")}${marineHub.qrTargetPath}`
-    : marineHub.qrFallbackUrl;
+    ? `${origin.replace(/\/$/, "")}${path}`
+    : path === marineHub.snorkelRental.qrTargetPath
+      ? `${marineHub.qrFallbackUrl.replace(/\/$/, "")}${path}`
+      : marineHub.qrFallbackUrl;
   if (!hotel) return base;
   const sep = base.includes("?") ? "&" : "?";
   return `${base}${sep}src=hotel&hotel=${encodeURIComponent(hotel)}`;
+}
+
+export function getOfficialHotels(): MarineHubHotel[] {
+  return marineHub.hotels.filter((h) => h.tier === "official");
+}
+
+export function getHotelPrintName(hotel: MarineHubHotel): string {
+  return hotel.formalName.trim() || hotel.label;
+}
+
+export function buildSnorkelRentalUrl(origin?: string, hotel?: string): string {
+  return buildMarineHubBookingUrl(origin, hotel, marineHub.snorkelRental.qrTargetPath);
 }

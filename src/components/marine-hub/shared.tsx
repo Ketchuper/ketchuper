@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import {
   buildMarineHubBookingUrl,
+  buildSnorkelRentalUrl,
   getMarineHubPhoneHref,
   getMarineHubPhoneLabel,
   getMarineHubPrimaryCta,
@@ -48,6 +49,15 @@ export function useMarineHubBookingUrl(hotel?: string) {
       return buildMarineHubBookingUrl(undefined, hotel);
     }
     return buildMarineHubBookingUrl(window.location.origin, hotel);
+  }, [hotel]);
+}
+
+export function useSnorkelRentalUrl(hotel?: string) {
+  return useMemo(() => {
+    if (typeof window === "undefined") {
+      return buildSnorkelRentalUrl(undefined, hotel);
+    }
+    return buildSnorkelRentalUrl(window.location.origin, hotel);
   }, [hotel]);
 }
 

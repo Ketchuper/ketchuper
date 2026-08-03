@@ -1,6 +1,7 @@
 # マリンハブ — 車＝店舗の集客フレーム
 
-正本。足りないのは「もの」ではなく**準備**（置き場所・導線・補充・申し込み先の固定）。
+正本。足りないのは「もの」ではなく**準備**（置き場所・導線・補充・申し込み先の固定）。  
+今週の実行口: **[NOW-snorkel-rental-2hotels.md](./NOW-snorkel-rental-2hotels.md)**（やれることをやり切る＝オフィシャル2件にシュノーケルレンタルパンフを置く）。
 
 ## 仮説（最大3・検証前に憲法化しない）
 
@@ -8,37 +9,39 @@
 2. **ホテルは不足分のキャッチ** — 店舗（車）だけでは足りない客を、フロントのパンフ＋QRで取る。
 3. **申し込みは1本に寄せる** — ネット（QR→LP）と電話。ホテル名は必ず残す。
 
-## ゴール（今週）
+## 今週の完了（これだけ）
 
 | 優先 | やること | 完了の定義 |
 |------|----------|------------|
-| 1 | ホテル向けパンフ | A5両面が印刷でき、QRと電話が入っている |
-| 2 | チラシ（車内・フロント用） | QR＋電話が大きく、迷わず撮れる |
-| 3 | 申し込みLP `/marine-hub` | ホテル名付きでLINE/電話に繋がる |
-| 4 | 貸出管理 | どのホテルに何部置いたか追える |
+| 1 | シュノーケルレンタルパンフ | `/marine-hub/snorkel-rental/pamphlet` で印刷できる |
+| 2 | オフィシャルホテル①に置く | 貸出ログに1行 |
+| 3 | オフィシャルホテル②に置く | 貸出ログに1行 |
 
-## 導線（固定）
+## 導線（レンタル）
 
 ```
-[車＝店舗] 外見ロゴ → 車内チラシ → 一言案内
-        ↓ 足りない分
-[ホテル] フロントにパンフ貸出 → QR/電話
+[ホテル2件] フロントにレンタルパンフ
         ↓
-[ネット] /marine-hub?src=hotel&hotel=○○ → LINE or 電話
+[ネット] /marine-hub/snorkel-rental?src=hotel&hotel=○○
+        ↓
+LINE or 電話（受取・返却を確定）
 ```
 
-## URL（印刷物）
+## URL
 
 | 媒体 | パス | 用途 |
 |------|------|------|
-| 申し込みLP | `/marine-hub` | QRの飛び先 |
-| パンフ印刷 | `/marine-hub/pamphlet` | ブラウザ印刷（A5両面想定） |
-| チラシ印刷 | `/marine-hub/flyer` | ブラウザ印刷（A6〜A5） |
+| レンタル申込LP | `/marine-hub/snorkel-rental` | QRの飛び先（今の本命） |
+| レンタルパンフ | `/marine-hub/snorkel-rental/pamphlet` | オフィシャル2件用印刷 |
+| ツアー申込LP | `/marine-hub` | 後続 |
+| ツアーパンフ | `/marine-hub/pamphlet` | 後続 |
+| チラシ | `/marine-hub/flyer` | 後続 |
 
-連絡先は `src/config/marineHub.ts` の `phone` / `lineUrl` を印刷前に埋める。
+連絡先・ホテル名・料金は `src/config/marineHub.ts` を印刷前に埋める。
 
 ## 関連
 
+- 今週実行: [NOW-snorkel-rental-2hotels.md](./NOW-snorkel-rental-2hotels.md)
 - 貸出ログ: [hotel-lending-log.md](./hotel-lending-log.md)
 - 車オペ: [car-as-store-ops.md](./car-as-store-ops.md)
 - 公式サイト: https://cebuocto.com/
