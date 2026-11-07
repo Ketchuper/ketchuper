@@ -23,6 +23,7 @@
 |------|------|------|
 | BARVEL KOZA | `/` または `/barvel-koza` | トップを割り当て（NFC用） |
 | CEBUOCTO | `/cebuocto` | 南国テーマ・1ページ・専用UI |
+| MIMO$A KOZA | `/mimosa-koza` | 古着×音楽。legacy生成。Mapsは公式共有URL |
 | （新規店舗） | `/{店舗ID}` | `stores.ts` に追加すれば `[storeId]` で表示。詳細は [docs/店舗管理.md](docs/店舗管理.md) |
 
 ### 現在見れない場合の主な原因と確認

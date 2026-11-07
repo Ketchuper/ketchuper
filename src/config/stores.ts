@@ -312,6 +312,89 @@ export const stores: Record<string, StoreConfig> = {
     singlePageLayout: true
   },
 
+
+  /**
+   * MIMO$A KOZA — 自社古着（ヴィンテージ×音楽コンセプト・沖縄市・コザ）
+   * Maps共有URLは公式サイト（mimosa-koza-web）の確定リンク。placeId(ChIJ)は本文未確認のため空。
+   */
+  "mimosa-koza": {
+    id: "mimosa-koza",
+    name: "MIMO$A KOZA",
+    nameEn: "MIMO$A KOZA",
+    logoPath: "/mimosa-koza-logo.png",
+    googleMapsUrl: "https://maps.app.goo.gl/PLDHWVEn6xhuz6aW9",
+    placeId: "",
+
+    theme: {
+      primaryColor: "#c9a962",
+      secondaryColor: "#3d2914",
+      logoGlow:
+        "drop-shadow(0 0 14px rgba(201, 169, 98, 0.45)) drop-shadow(0 0 28px rgba(61, 41, 20, 0.35))",
+    },
+
+    features: {
+      keywords: {
+        enabled: true,
+        options: {
+          ja: [
+            "コザ・沖縄市エリアで寄りやすい",
+            "古着・ヴィンテージの品揃えが良い",
+            "メンズもレディースも楽しめる",
+            "店内の音楽・雰囲気が最高",
+            "スタッフの接客・コーディネート提案",
+            "セレクトのセンスが良い",
+          ],
+          en: [
+            "Easy to visit around Koza / Okinawa City",
+            "Great vintage & secondhand selection",
+            "Both menswear and womenswear",
+            "Music and in-store vibe",
+            "Staff help & outfit suggestions",
+            "Curated taste / selection",
+          ],
+        },
+      },
+      companion: {
+        enabled: true,
+        options: {
+          ja: ["友達", "家族", "恋人", "一人"],
+          en: ["Friends", "Family", "Partner", "Solo"],
+        },
+      },
+      gender: {
+        enabled: true,
+        options: {
+          ja: ["男性", "女性"],
+          en: ["Male", "Female"],
+        },
+      },
+      visitType: {
+        enabled: true,
+        options: {
+          ja: ["地元", "観光"],
+          en: ["Local", "Tourist"],
+        },
+      },
+      staffName: {
+        enabled: true,
+        placeholder: {
+          ja: "いれば教えてください（名前・特徴どちらでもOK）",
+          en: "If any (name or description OK)",
+        },
+      },
+      rating: {
+        enabled: true,
+        default: 5,
+      },
+    },
+
+    promptContext: {
+      ja: "沖縄市・コザエリアの古着屋「MIMO$A KOZA」。ヴィンテージ／セレクト古着が中心で、店内の音楽・空気感がブランドの顔。接客でサイズ感やコーデ相談がしやすい。",
+      en: "MIMO$A KOZA: vintage / curated secondhand in Koza, Okinawa City. Music-forward atmosphere and approachable staff for fit and styling.",
+    },
+    singlePageLayout: false,
+  },
+
   "bar-replica": {
     id: "bar-replica",
     name: "BAR REPLICA",
