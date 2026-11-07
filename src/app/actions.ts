@@ -188,20 +188,20 @@ export async function generateReview(
     "音楽・雰囲気が最高": ["音楽と雰囲気が最高", "BGMが良かった", "雰囲気が良かった", "リクエストで曲が流せて楽しい"],
     "スタッフが面白い": ["スタッフが面白かった", "スタッフのノリが良い", "接客が楽しい", "スタッフと話して盛り上がった"],
     "朝まで遊べる": ["朝まで遊べた", "時間を気にせず楽しめた", "遅くまで営業で助かった", "朝までいられた"],
-    // MIMO$A KOZA（古着×音楽・コザ）
+    // MIMO$A KOZA（古着×音楽・コザ）— 2026-11-07 keyword revision
     "コザ・沖縄市エリアで寄りやすい": [
       "コザ周りで立ち寄りやすかった",
+      "沖縄市諸見里で寄りやすかった",
       "沖縄市エリアで寄りやすい立地",
-      "コザの街中で見つけやすい",
-      "沖縄市・コザでフラッと入れた",
-      "エリア的に寄りやすかった",
+      "諸見里でフラッと入れた",
+      "コザの流れで寄れた",
     ],
-    "古着・ヴィンテージの品揃えが良い": [
-      "古着のラインナップが充実",
-      "ヴィンテージの掘り出し物が多い",
-      "欲しかった系の古着があった",
-      "品揃えがしっかりしてる",
-      "アイテムの質と量が良い",
+    "アーティストTやUS古着が豊富": [
+      "アーティストTが充実してた",
+      "USの古着がしっかり揃ってる",
+      "企業ロゴのコラボTが面白い",
+      "お酒ブランドのコラボTが見つかった",
+      "バンドTやアーティストTを掘れた",
     ],
     "メンズもレディースも楽しめる": [
       "メンズもレディースも見応えある",
@@ -210,12 +210,12 @@ export async function generateReview(
       "彼と彼女どっちも満足",
       "メンズラインナップもレディースも良い",
     ],
-    "店内の音楽・雰囲気が最高": [
-      "流れてる音楽がセンス良くて最高",
+    "店内の音楽と空気感が良かった": [
+      "流れてる音楽がセンス良かった",
       "店内の音楽と空気感が好き",
-      "BGMがジャストで居心地良い",
-      "音楽のチョイスが店の顔になってる",
-      "雰囲気と音楽がマッチしてる",
+      "音楽が店の顔になってる",
+      "居心地のいい空気感",
+      "音楽と古着の相性が良い",
     ],
     "スタッフの接客・コーディネート提案": [
       "スタッフの着こなし参考になった",
@@ -224,12 +224,12 @@ export async function generateReview(
       "接客が丁寧で話しやすい",
       "スタイリングのアドバイスが嬉しかった",
     ],
-    "セレクトのセンスが良い": [
-      "セレクトのセンスが信頼できる",
-      "店主の目利きを感じる",
-      "他店と被らないピック",
-      "トレンドとクラシックのバランスが良い",
-      "一枚一枚のチョイスが良い",
+    "DJ・LIVEイベントが楽しめた": [
+      "DJの日に行けて楽しかった",
+      "LIVEイベントが熱かった",
+      "古着を見ながらLIVEも楽しめた",
+      "音楽好きが集まってて楽しい",
+      "イベントの日の空気が最高",
     ],
   };
 
@@ -239,7 +239,8 @@ export async function generateReview(
       "友達": "friends",
       "同僚": "coworkers",
       "恋人": "partner",
-      "一人": "solo"
+      "一人": "solo",
+      "家族": "family",
     };
     
     const genderEn = gender === "女性" ? "female" : "male";
@@ -253,17 +254,17 @@ export async function generateReview(
       "出入り自由・ハシゴ酒": "Mention the wristband system that lets you leave and come back. Perfect for bar hopping",
       "スタッフ最高": "Emphasize how fun and friendly the staff are. Great vibes, easy to talk to, never feel alone",
       "コザ・沖縄市エリアで寄りやすい":
-        "Mention it was easy to stop by around Koza / Okinawa City — convenient spot for shopping",
-      "古着・ヴィンテージの品揃えが良い":
-        "Highlight strong vintage / secondhand selection and that you found pieces you liked",
+        "Mention it was easy to stop by around Koza / Okinawa City (Moromizato is OK to name)",
+      "アーティストTやUS古着が豊富":
+        "Highlight artist tees and US vintage, including fun corporate or beer/liquor brand collab tees",
       "メンズもレディースも楽しめる":
         "Note both menswear and womenswear (or unisex) felt worth browsing",
-      "店内の音楽・雰囲気が最高":
-        "Emphasize music and overall vibe of the shop — atmosphere matters here",
+      "店内の音楽と空気感が良かった":
+        "Emphasize the music and overall vibe of the shop",
       "スタッフの接客・コーディネート提案":
         "Mention helpful staff: fit, sizing, or outfit suggestions",
-      "セレクトのセンスが良い":
-        "Say the curation / buying taste stood out — not generic mall stock",
+      "DJ・LIVEイベントが楽しめた":
+        "Mention enjoying a DJ or live event at the shop; music lovers gather here",
     };
     
     const selectedContextsEn = keywords
@@ -282,8 +283,9 @@ export async function generateReview(
             ? "Okinawa City (Koza area), Okinawa"
             : "Koza, Okinawa";
 
+    const selectedLive = isMimosaKoza && keywords.includes("DJ・LIVEイベントが楽しめた");
     const reviewAngle = isMimosaKoza
-      ? `You're a ${genderEn} shopper in your 20s-40s who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review — excited about vintage fashion and the shop's music-driven atmosphere. This is a CLOTHING STORE, not a bar.`
+      ? `You're a ${genderEn} shopper in your 20s-40s who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review — excited about vintage fashion and the shop's music-driven atmosphere. This is a vintage clothing store that also hosts DJ & live events — not a party bar.`
       : `You're a ${genderEn} customer in your 20s-30s who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review with a fun, slightly tipsy vibe.`;
 
     const strictRulesEn = isMimosaKoza
@@ -294,10 +296,11 @@ export async function generateReview(
 4. **NO formal AI language** - Sound like a real person
 5. **Past tense**
 6. **Use 1-2 emojis naturally** 🎵👕✨ (no alcohol emojis)
-7. **End with a positive closing** ("Definitely coming back!" "Highly recommend!")
-8. **CLOTHING STORE ONLY**: Do NOT mention drinking, all-you-can-drink, darts, pool, karaoke, bar hopping, or wristbands.
-9. **Cover EVERY bullet** you selected under "What you enjoyed" — each must appear at least once (paraphrase OK; do not skip any).
-${hasStaff ? `10. **Thank or shout out ${staffMentionEn}** for help or vibe (keep it natural)` : ""}`
+7. **End with a positive closing** about belonging ("music lovers gather here", "want to drop by again") — do NOT invent facts like "lots of regulars" or "events every week"
+8. **NEVER** mention all-you-can-drink, darts, pool, karaoke, bar hopping, or wristbands. Do NOT call the place a bar or drinking spot.
+9. **Drinks:** ${selectedLive ? "Because a DJ/live event was selected, you may mention a drink once lightly (e.g. with a drink in hand). Do not make drinking the main point." : "Do NOT mention drinks or drinking. Beer/liquor brand collab tees as product names are OK if that bullet was selected."}
+10. **Cover EVERY bullet** you selected under "What you enjoyed" — each must appear at least once (paraphrase OK; do not skip any).
+${hasStaff ? `11. **Thank or shout out ${staffMentionEn}** for help or vibe (keep it natural)` : ""}`
       : `【STRICT RULES】
 1. **Write a COMPLETE review that ends properly** (Never cut off mid-sentence!!!)
 2. **Length: 100-130 characters** (Short but complete with a closing statement)
@@ -309,7 +312,7 @@ ${hasStaff ? `10. **Thank or shout out ${staffMentionEn}** for help or vibe (kee
 ${hasStaff ? `8. **Mention ${staffMentionEn} like a fan** ("${staffMentionEn} was hilarious", "Can't wait to see ${staffMentionEn} again")` : ""}`;
 
     const goodExamplesEn = isMimosaKoza
-      ? `${companionText === "friends" && keywords.includes("店内の音楽・雰囲気が最高") ? `"Dropped by ${storeName} with friends in Koza — music was on point and the vintage racks are 🔥 Staff vibe matched the whole aesthetic ✨ Already wanna go back!"` : ""}`
+      ? `${companionText === "friends" && keywords.includes("店内の音楽と空気感が良かった") ? `"Dropped by ${storeName} with friends in Koza — music was on point and the vintage racks are 🔥 Staff vibe matched the whole aesthetic ✨ Already wanna go back!"` : ""}`
       : `${companionText === "friends" && keywords.includes("ダーツ・ビリヤード無料") ? `"Went with friends after hitting other bars in Koza - darts and pool are FREE!? Stayed till morning 😂 ${hasStaff ? staffMentionEn + " made it even better!" : "Staff was awesome!"} Best value ever 🎯 Definitely coming back!"` : ""}
 ${companionText === "solo" && keywords.includes("スタッフ最高") ? `"Stopped by solo after work and ${hasStaff ? staffMentionEn : "the staff"} kept me entertained all night! Never felt alone 🍺 Free entry/exit system is clutch for bar hopping. See you again soon! ✨"` : ""}`;
 
@@ -443,7 +446,7 @@ Write ONE complete review following the rules above for a **${companionText} ${v
         storeName: "MIMO$A KOZA",
         locationContext: isLocal ? "沖縄在住（沖縄市・コザ周辺）" : "沖縄旅行で沖縄市・コザエリアへ来ている",
         activityType: "古着屋",
-        mood: "また来たくなる、店内で長居したくなる",
+        mood: "音楽と古着が好きな人が集まる場所。また顔を出したくなる",
         forbiddenWords: [],
         mandatoryEmoji: []
       }
@@ -501,11 +504,13 @@ ${isCebuOcto
 ${isFemale ? "・感謝の気持ちも表現OK" : ""}`
   : isMimosaKoza
   ? `・${isLocal ? "地元民として。知ってることに驚かない。" : "観光客として。"}
-・業態は古着屋（アパレル）。飲み屋・飲み放題・ダーツ・カラオケ・ハシゴ酒・バーなどの表現は禁止
+・業態は古着屋（アパレル）。業態を「バー」「飲み屋」と言い換えない。飲み放題・ダーツ・ビリヤード・カラオケ・ハシゴ酒・リストバンドは禁止。未成年飲酒を想起させる表現も禁止
+・ドリンク: ${keywords.includes("DJ・LIVEイベントが楽しめた") ? "今回はLIVE/DJを選んでいるので、ドリンクを1回まで軽く触れてよい（例: ドリンク片手に）。主題にしない" : "ドリンクや飲酒の描写はしない。ただし「お酒ブランドのコラボT」など商品名としての言及は可"}
 ・感情語: ${isFemale ? "感情を込めて" : "控えめに"}
 ・強調表現（とても、すごく）: ${isFemale ? "使ってOK" : "あまり使わない"}
 ${isFemale ? "・感謝の気持ちも表現OK" : ""}
-・「良かった点」に挙げた内容は、それぞれ本文で必ず1回は触れる（言い換え・短く言及でも可。省略は不可）`
+・「良かった点」に挙げた内容は、それぞれ本文で必ず1回は触れる（言い換え・短く言及でも可。省略は不可）
+・締めは「音楽好きが集まる場所」「また顔を出したい」など居場所感で終えてよい。ただし「常連が多い」「毎週イベント」など未確認の事実は書かない`
   : `・${isLocal ? "地元民として。知ってることに驚かない。" : "観光客として。"}
 ・感情語: ${isFemale ? "感情を込めて" : "控えめに"}
 ・強調表現（とても、すごく）: ${isFemale ? "使ってOK" : "あまり使わない"}
@@ -535,8 +540,9 @@ ${isCebuOcto
 ・一人でふらっと立ち寄った
 ・仕事帰りに${companion}と覗いた
 ・旅行の自由時間に${companion}と
-・${companion}${params.openingPattern}
-（「${companion}に誘われて行った」は使うなら1回だけ。他を優先）`
+${keywords.includes("DJ・LIVEイベントが楽しめた") ? `・LIVEの日に${companion}と
+・DJイベントに合わせて` : ""}
+（「${companion}に誘われて行った」は使うなら1回だけ。他を優先。飲み屋向けの書き出しは使わない）`
   : `・${params.includeTime ? params.timeContext : "週末に"}${companion}と飲んだ
 ・コザで${companion}と遊んだ
 ・ハシゴ酒の締めに寄った

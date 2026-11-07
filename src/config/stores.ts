@@ -316,6 +316,7 @@ export const stores: Record<string, StoreConfig> = {
   /**
    * MIMO$A KOZA — 自社古着（ヴィンテージ×音楽コンセプト・沖縄市・コザ）
    * Maps共有URLは公式サイト（mimosa-koza-web）の確定リンク。placeId(ChIJ)は本文未確認のため空。
+   * キーワード改訂 2026-11-07: docs/plans/2026-11-07-mimosa-koza-rb-keyword-workorder.md
    */
   "mimosa-koza": {
     id: "mimosa-koza",
@@ -338,19 +339,19 @@ export const stores: Record<string, StoreConfig> = {
         options: {
           ja: [
             "コザ・沖縄市エリアで寄りやすい",
-            "古着・ヴィンテージの品揃えが良い",
+            "アーティストTやUS古着が豊富",
             "メンズもレディースも楽しめる",
-            "店内の音楽・雰囲気が最高",
+            "店内の音楽と空気感が良かった",
             "スタッフの接客・コーディネート提案",
-            "セレクトのセンスが良い",
+            "DJ・LIVEイベントが楽しめた",
           ],
           en: [
-            "Easy to visit around Koza / Okinawa City",
-            "Great vintage & secondhand selection",
+            "Easy to stop by in Koza / Okinawa City",
+            "Artist tees & US vintage",
             "Both menswear and womenswear",
-            "Music and in-store vibe",
-            "Staff help & outfit suggestions",
-            "Curated taste / selection",
+            "Music & vibe in the shop",
+            "Staff help & styling tips",
+            "DJ & live events",
           ],
         },
       },
@@ -389,8 +390,8 @@ export const stores: Record<string, StoreConfig> = {
     },
 
     promptContext: {
-      ja: "沖縄市・コザエリアの古着屋「MIMO$A KOZA」。ヴィンテージ／セレクト古着が中心で、店内の音楽・空気感がブランドの顔。接客でサイズ感やコーデ相談がしやすい。",
-      en: "MIMO$A KOZA: vintage / curated secondhand in Koza, Okinawa City. Music-forward atmosphere and approachable staff for fit and styling.",
+      ja: "沖縄市諸見里（コザ）の古着屋「MIMO$A KOZA」。アーティストTとUS古着（企業・お酒ブランドのコラボデザインT等）が中心で、メンズ・レディースあり。店内の音楽と空気感が核で、DJ・LIVEイベントも開く、音楽と古着のコミュニティの拠点。",
+      en: "MIMO$A KOZA: vintage clothing store in Moromizato, Okinawa City (Koza). Mainly artist tees and US vintage (including corporate and beer/liquor brand collab tees), for men and women. Music-driven atmosphere; also hosts DJ & live events — a community spot for music and vintage lovers.",
     },
     singlePageLayout: false,
   },
