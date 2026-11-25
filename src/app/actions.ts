@@ -84,6 +84,7 @@ export async function generateReview(
   const isBarReplica = storeId === "bar-replica";
   const isBarvelHonten = storeId === "barvel";
   const isMimosaKoza = storeId === "mimosa-koza";
+  const isKinmaqYokodai = storeId === "kinmaq-yokodai";
   const storeName = isCebuOcto
     ? "CEBUOCTO"
     : isBarReplica
@@ -92,7 +93,9 @@ export async function generateReview(
         ? "BARVEL"
         : isMimosaKoza
           ? "MIMO$A KOZA"
-          : "BARVEL KOZA";
+          : isKinmaqYokodai
+            ? "Next整体KINMAQ 横浜洋光台駅前院"
+            : "BARVEL KOZA";
   const storeContext = isCebuOcto
     ? "セブ島"
     : isBarReplica
@@ -101,7 +104,9 @@ export async function generateReview(
         ? "沖縄（本店）"
         : isMimosaKoza
           ? "沖縄市・コザ"
-          : "沖縄コザ";
+          : isKinmaqYokodai
+            ? "横浜・洋光台"
+            : "沖縄コザ";
   // レート制限チェック（クライアントIDベース）
   const rateLimitResult = checkSimpleRateLimit(clientId);
 
@@ -231,6 +236,50 @@ export async function generateReview(
       "音楽好きが集まってて楽しい",
       "イベントの日の空気が最高",
     ],
+
+    // Next整体KINMAQ 横浜洋光台駅前院
+    "洋光台駅前": [
+      "洋光台駅前で通いやすかった",
+      "洋光台駅の近くで助かった",
+      "駅前にあるのが便利だった",
+      "洋光台駅前の立地が良い",
+      "駅ちかで寄りやすかった",
+    ],
+    "理学療法士の施術": [
+      "理学療法士の施術で安心できた",
+      "国家資格の理学療法士にみてもらえた",
+      "理学療法士の説明と施術が丁寧だった",
+      "理学療法士ならではの視点が頼もしい",
+      "PTの施術で納得感があった",
+    ],
+    "筋膜整体": [
+      "筋膜整体が自分に合ってた",
+      "筋膜へのアプローチが印象に残った",
+      "筋膜を意識した施術で身体が軽く感じた",
+      "筋膜整体の考え方が分かりやすかった",
+      "筋膜から整える施術だった",
+    ],
+    "肩こり・腰痛の相談": [
+      "肩こりと腰痛の相談ができた",
+      "首肩と腰の悩みをみてもらえた",
+      "肩こり腰痛の相談先として頼れた",
+      "肩と腰の不調を丁寧に見てもらえた",
+      "肩こりや腰痛の相談がしやすかった",
+    ],
+    "姿勢・動きの相談": [
+      "姿勢や動きの相談ができた",
+      "姿勢のクセをみてもらえた",
+      "動き方のアドバイスが役立った",
+      "姿勢と動作の視点で説明してもらえた",
+      "姿勢の相談ができて良かった",
+    ],
+    "長く続く不調の相談": [
+      "長く続く不調を相談できた",
+      "長引く身体の悩みをみてもらえた",
+      "慢性的な不調の相談ができた",
+      "ずっと気になってた不調を話せた",
+      "長引く不調でも相談しやすかった",
+    ],
   };
 
   // 英語版の設定
@@ -265,6 +314,18 @@ export async function generateReview(
         "Mention helpful staff: fit, sizing, or outfit suggestions",
       "DJ・LIVEイベントが楽しめた":
         "Mention enjoying a DJ or live event at the shop; music lovers gather here",
+      "洋光台駅前":
+        "Mention the convenient location near Yokodai Station. Use Yokodai",
+      "理学療法士の施術":
+        "Emphasize care from licensed physical therapists — clear explanation and skilled hands-on work",
+      "筋膜整体":
+        "Highlight fascia-focused seitai / bodywork approach (no medical cure claims)",
+      "肩こり・腰痛の相談":
+        "Mention consulting about stiff shoulders and/or lower back discomfort",
+      "姿勢・動きの相談":
+        "Mention help with posture or movement habits",
+      "長く続く不調の相談":
+        "Mention consulting about lingering / long-lasting bodily discomfort (no guaranteed cure)",
     };
     
     const selectedContextsEn = keywords
@@ -281,14 +342,39 @@ export async function generateReview(
           ? "Okinawa (main store)"
           : isMimosaKoza
             ? "Okinawa City (Koza area), Okinawa"
-            : "Koza, Okinawa";
+            : isKinmaqYokodai
+              ? "Yokodai, Isogo, Yokohama"
+              : "Koza, Okinawa";
 
     const selectedLive = isMimosaKoza && keywords.includes("DJ・LIVEイベントが楽しめた");
-    const reviewAngle = isMimosaKoza
+    const reviewAngle = isKinmaqYokodai
+      ? `You're a ${genderEn} adult who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review about a seitai / bodywork clinic visit. Calm, grateful tone — NOT a bar, restaurant, or hospital.`
+      : isMimosaKoza
       ? `You're a ${genderEn} shopper in your 20s-40s who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review — excited about vintage fashion and the shop's music-driven atmosphere. This is a vintage clothing store that also hosts DJ & live events — not a party bar.`
       : `You're a ${genderEn} customer in your 20s-30s who visited ${storeName} in ${storeLocationEn}. You're writing a Google Maps review with a fun, slightly tipsy vibe.`;
 
-    const strictRulesEn = isMimosaKoza
+    const kinmaqForbidUnselected = [
+      !keywords.includes("理学療法士の施術") ? "Do NOT say physical therapist, PT, or licensed therapist" : null,
+      !keywords.includes("筋膜整体") ? "Do NOT say fascia" : null,
+      !keywords.includes("肩こり・腰痛の相談") ? "Do NOT say stiff shoulders, lower back, or shoulder/back pain" : null,
+      !keywords.includes("姿勢・動きの相談") ? "Do NOT say posture or movement issues" : null,
+      !keywords.includes("長く続く不調の相談") ? "Do NOT say lingering/chronic discomfort" : null,
+      !keywords.includes("洋光台駅前") ? "Do NOT emphasize station-front convenience beyond naming Yokodai" : null,
+    ].filter(Boolean).join("; ");
+    const strictRulesEn = isKinmaqYokodai
+      ? `【STRICT RULES】
+1. **Write a COMPLETE review that ends properly**
+2. **Length: 110-170 characters**
+3. **Calm, authentic clinic-customer tone** (not tipsy, not party)
+4. **Past tense**
+5. **Use 0-1 emoji** (optional; no alcohol emojis)
+6. **Always include Yokodai and seitai (or bodywork clinic)**
+7. **Cover EVERY selected bullet** at least once (paraphrase OK)
+8. **Mention ONLY selected bullets.** Unselected bans: ${kinmaqForbidUnselected || "none"}
+9. **FORBIDDEN:** cured/healed/guaranteed results, insurance coverage, hospital/doctor claims, price numbers, comparing other clinics, calling it a seikotsu-in (整骨院), bar/drinks/darts/karaoke
+10. **Do not invent hours or closed days**
+${hasStaff ? `11. **You may thank ${staffMentionEn} lightly**` : "11. **Do not invent staff names**"}`
+      : isMimosaKoza
       ? `【STRICT RULES】
 1. **Write a COMPLETE review that ends properly** (Never cut off mid-sentence!!!)
 2. **Length: 110-170 characters** (Short but complete with a closing statement)
@@ -311,7 +397,13 @@ ${hasStaff ? `11. **Thank or shout out ${staffMentionEn}** for help or vibe (kee
 7. **End with a positive closing** ("Definitely coming back!" "Highly recommend!")
 ${hasStaff ? `8. **Mention ${staffMentionEn} like a fan** ("${staffMentionEn} was hilarious", "Can't wait to see ${staffMentionEn} again")` : ""}`;
 
-    const goodExamplesEn = isMimosaKoza
+    const goodExamplesEn = isKinmaqYokodai
+      ? `${keywords.includes("筋膜整体") && keywords.includes("理学療法士の施術")
+          ? `"Visited Next Seitai KINMAQ near Yokodai — fascia-focused care from a physical therapist. Clear explanation. Coming back."`
+          : keywords.includes("洋光台駅前")
+            ? `"Stopped by Next Seitai KINMAQ near Yokodai Station. Easy to access and a calm clinic visit. Coming back."`
+            : ""}`
+      : isMimosaKoza
       ? `${companionText === "friends" && keywords.includes("店内の音楽と空気感が良かった") ? `"Dropped by ${storeName} with friends in Koza — music was on point and the vintage racks are 🔥 Staff vibe matched the whole aesthetic ✨ Already wanna go back!"` : ""}`
       : `${companionText === "friends" && keywords.includes("ダーツ・ビリヤード無料") ? `"Went with friends after hitting other bars in Koza - darts and pool are FREE!? Stayed till morning 😂 ${hasStaff ? staffMentionEn + " made it even better!" : "Staff was awesome!"} Best value ever 🎯 Definitely coming back!"` : ""}
 ${companionText === "solo" && keywords.includes("スタッフ最高") ? `"Stopped by solo after work and ${hasStaff ? staffMentionEn : "the staff"} kept me entertained all night! Never felt alone 🍺 Free entry/exit system is clutch for bar hopping. See you again soon! ✨"` : ""}`;
@@ -322,7 +414,9 @@ ${companionText === "solo" && keywords.includes("スタッフ最高") ? `"Stoppe
 
 【Your Experience】
 - Rating: ${rating} stars
-- Visit type: ${visitTypeEn} (${visitTypeEn === "local" ? "You live in Okinawa" : "You're visiting Okinawa for travel"})
+- Visit type: ${visitTypeEn} (${isKinmaqYokodai
+    ? (visitTypeEn === "local" ? "You live near Yokodai / Yokohama" : "You're visiting the Yokodai / Yokohama area")
+    : (visitTypeEn === "local" ? "You live in Okinawa" : "You're visiting Okinawa for travel")})
 - Came with: ${companionText}
 - What you enjoyed: ${keywords.join(", ")}
 ${hasStaff ? `- Favorite staff: ${staffMentionEn}` : ""}
@@ -349,7 +443,9 @@ Write ONE complete review following the rules above for a **${companionText} ${v
         messages: [
           {
             role: "system",
-            content: isMimosaKoza
+            content: isKinmaqYokodai
+              ? `You're a customer who visited ${storeName}, a seitai / bodywork clinic in ${storeLocationEn}. Write a short authentic Google Maps review in ENGLISH ONLY. Always mention Yokodai and seitai/bodywork. Never invent cures, insurance, prices, or bar language.`
+              : isMimosaKoza
               ? `You're a shopper who visited ${storeName}, a vintage / secondhand clothing store in ${storeLocationEn}. Write a short authentic Google Maps review in ENGLISH ONLY. Never describe it as a bar.`
               : `You're a customer in your 20s-30s who visited ${storeName} in ${storeLocationEn}. Write a Google Maps review with a fun, friendly tone in ENGLISH ONLY.`
           },
@@ -450,6 +546,15 @@ Write ONE complete review following the rules above for a **${companionText} ${v
         forbiddenWords: [],
         mandatoryEmoji: []
       }
+    : isKinmaqYokodai
+    ? {
+        storeName: "Next整体KINMAQ 横浜洋光台駅前院",
+        locationContext: isLocal ? "横浜・洋光台周辺在住" : "横浜・洋光台エリアへ来ている",
+        activityType: "整体",
+        mood: "説明が分かりやすく、身体が少し楽になった実感",
+        forbiddenWords: ["完治", "治った", "保険", "整骨院", "病院", "医師", "円", "価格", "料金"],
+        mandatoryEmoji: []
+      }
     : {
         storeName,
         locationContext: isLocal ? "沖縄在住" : "旅行で沖縄訪問中",
@@ -479,9 +584,9 @@ ${isCebuOcto ? "・日本人スタッフの気配り" : ""}
 
 【書き方の特徴】
 ${isFemale 
-  ? `感情を素直に表現。楽しかった気持ちを伝える。絵文字${params.emojiCount}個程度使ってOK${isCebuOcto ? "（🌊🚤✨📸などがおすすめ）" : isMimosaKoza ? "（🎵👕など可。飲酒系は避ける）" : ""}。`
+  ? `感情を素直に表現。${isKinmaqYokodai ? "施術後の安心感や身体の軽さを控えめに伝える。" : "楽しかった気持ちを伝える。"}絵文字${isKinmaqYokodai ? "は0〜1個まで" : `${params.emojiCount}個程度使ってOK`}${isCebuOcto ? "（🌊🚤✨📸などがおすすめ）" : isMimosaKoza ? "（🎵👕など可。飲酒系は避ける）" : isKinmaqYokodai ? "（飲酒・パーティー系は禁止）" : ""}。`
   : `事実を淡々と伝える。絵文字は${params.emojiCount > 0 ? "1個まで" : "使わない"}。落ち着いた表現。`}
-${isCebuOcto ? `\nテンション: ${storeSpecificSettings.mood}` : ""}
+${isCebuOcto || isKinmaqYokodai ? `\nテンション: ${storeSpecificSettings.mood}` : ""}
 
 【文体（今回）】
 ${styleDescriptions[params.stylePattern]}
@@ -511,6 +616,18 @@ ${isFemale ? "・感謝の気持ちも表現OK" : ""}`
 ${isFemale ? "・感謝の気持ちも表現OK" : ""}
 ・「良かった点」に挙げた内容は、それぞれ本文で必ず1回は触れる（言い換え・短く言及でも可。省略は不可）
 ・締めは「音楽好きが集まる場所」「また顔を出したい」など居場所感で終えてよい。ただし「常連が多い」「毎週イベント」など未確認の事実は書かない`
+  : isKinmaqYokodai
+  ? `・${isLocal ? "地元民として。通いやすさは言い過ぎない。" : "訪問者として。"}
+・業態は整体院。毎回「洋光台」と「整体」を本文に入れる（言い換えて消さない）
+・整骨院・接骨院・病院・医師・保険適用・完治・治った・再発しない・価格・円・他店比較は禁止
+・飲み屋・ダーツ・カラオケ・ハシゴ酒などの表現は禁止
+・営業時間・定休日は本文に書かない
+・感情語: ${isFemale ? "安心感を穏やかに" : "控えめに"}
+・強調表現（とても、すごく）: ${isFemale ? "使ってOK（1回まで）" : "あまり使わない"}
+・「良かった点」に挙げた内容は、それぞれ本文で必ず1回は触れる（言い換え・短く言及でも可。省略は不可）
+・選ばれている場合の必須語の目安: 「理学療法士の施術」→理学療法士またはPT、「筋膜整体」→筋膜、「肩こり・腰痛の相談」→肩か腰、「姿勢・動きの相談」→姿勢か動き、「長く続く不調の相談」→長引く/ずっと/慢性の不調、「洋光台駅前」→駅前または駅ちか
+・選んでいない固有語は足さない（未選択なら理学療法士・PT・筋膜・肩こり・腰痛・駅前を書かない）
+・禁止語: ${storeSpecificSettings.forbiddenWords.join("、")}`
   : `・${isLocal ? "地元民として。知ってることに驚かない。" : "観光客として。"}
 ・感情語: ${isFemale ? "感情を込めて" : "控えめに"}
 ・強調表現（とても、すごく）: ${isFemale ? "使ってOK" : "あまり使わない"}
@@ -543,6 +660,14 @@ ${isCebuOcto
 ${keywords.includes("DJ・LIVEイベントが楽しめた") ? `・LIVEの日に${companion}と
 ・DJイベントに合わせて` : ""}
 （「${companion}に誘われて行った」は使うなら1回だけ。他を優先。飲み屋向けの書き出しは使わない）`
+  : isKinmaqYokodai
+  ? `・洋光台の整体に${companion}と行った
+・${params.includeTime ? params.timeContext : "仕事終わりに"}整体へ
+・${companion}とNext整体KINMAQへ
+・一人で洋光台の整体を受診した
+・整体の相談で洋光台駅前へ
+・通いやすい整体を探して洋光台へ
+（飲み屋向け・ハシゴ酒の書き出しは使わない。未選択の肩こり・腰痛・理学療法士・筋膜は冒頭にも出さない）`
   : `・${params.includeTime ? params.timeContext : "週末に"}${companion}と飲んだ
 ・コザで${companion}と遊んだ
 ・ハシゴ酒の締めに寄った
@@ -553,7 +678,7 @@ ${keywords.includes("DJ・LIVEイベントが楽しめた") ? `・LIVEの日に$
 （「${companion}に誘われて行った」は使うなら1回だけ。他を優先）`}
 
 【締めのバリエーション】
-毎回違う締めで。例: 一文で終わる、また来たい、おすすめ、感想だけ、比較（他店より）、一言（良かった）など。型にハマらない。
+毎回違う締めで。例: 一文で終わる、また来たい、おすすめ、感想だけ、一言（良かった）など。型にハマらない。他店との優劣比較はしない。
 
 【禁止】
 ・同じ冒頭パターンを繰り返さない

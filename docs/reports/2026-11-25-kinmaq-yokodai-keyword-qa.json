@@ -1,0 +1,279 @@
+{
+  "pass": 20,
+  "total": 20,
+  "rows": [
+    {
+      "i": 1,
+      "language": "ja",
+      "keywords": [
+        "洋光台駅前"
+      ],
+      "companion": "一人",
+      "gender": "男性",
+      "visitType": "地元",
+      "text": "金曜の夜に一人で整体を受けにNext整体KINMAQ 横浜洋光台駅前院へ行った。駅前で通いやすさが助かる。施術後は身体が少し楽になった感覚があり、心地よかった。また行こうと思う。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 2,
+      "language": "ja",
+      "keywords": [
+        "理学療法士の施術"
+      ],
+      "companion": "友達",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "洋光台の整体で友達とリフレッシュしてきたよ。国家資格の理学療法士に施術してもらえて安心感があった。身体が少し軽くなって、日常生活が楽になる感じ。駅近で通いやすいのも嬉しいポイント。また行きたいなと思ったNext整体KINMAQ 横浜洋光台駅前院。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 3,
+      "language": "ja",
+      "keywords": [
+        "筋膜整体"
+      ],
+      "companion": "恋人",
+      "gender": "男性",
+      "visitType": "観光",
+      "text": "洋光台の整体で、恋人とリラックスしたひとときを過ごしました。Next整体KINMAQ 横浜洋光台駅前院では、筋膜整体の考え方が非常に分かりやすく説明されていたのが良かったです。施術を受ける中で、身体が少し楽になった実感もあり、心地よい時間でした。整体を探している方にはおすすめしたい場所です。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 4,
+      "language": "ja",
+      "keywords": [
+        "肩こり・腰痛の相談"
+      ],
+      "companion": "家族",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "仕事終わりに洋光台の整体に行きました。肩と腰の不調を感じていたので、丁寧に見てもらえたのが嬉しかったです。施術中はリラックスできて、終わった後は体が軽くなった実感がありました。スタッフの方も親切で安心感があり、また行きたいと思っています。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 5,
+      "language": "ja",
+      "keywords": [
+        "姿勢・動きの相談"
+      ],
+      "companion": "一人",
+      "gender": "男性",
+      "visitType": "観光",
+      "text": "仕事終わりに整体へ、Next整体KINMAQ 横浜洋光台駅前院で施術を受けました。姿勢のクセをしっかり見てもらい、自分の体について新たな発見がありました。施術後は身体が少し楽になった気がします。また行きたいです。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 6,
+      "language": "ja",
+      "keywords": [
+        "長く続く不調の相談"
+      ],
+      "companion": "友達",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "仕事終わりに洋光台の整体へ行ってきました。友達と一緒で、ずっと気になっていた不調を相談できて本当に良かった。施術中、スタッフが丁寧に話を聞いてくれたおかげで安心感があったし、身体が軽くなった実感も。心地よい時間を過ごせて嬉しいです。またNext整体KINMAQ 横浜洋光台駅前院に来たいと思いました！",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 7,
+      "language": "ja",
+      "keywords": [
+        "洋光台駅前",
+        "理学療法士の施術"
+      ],
+      "companion": "一人",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "仕事終わりに整体へ、Next整体KINMAQ 横浜洋光台駅前院に行ってきました。理学療法士の方が丁寧に説明してくれて、施術中も安心感がありました。身体が少し楽になった実感があって、動きやすさを感じました。また利用したいです。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 8,
+      "language": "ja",
+      "keywords": [
+        "筋膜整体",
+        "肩こり・腰痛の相談"
+      ],
+      "companion": "恋人",
+      "gender": "男性",
+      "visitType": "地元",
+      "text": "土曜の夜に恋人と整体へ。筋膜へのアプローチが印象に残った。首肩や腰の悩みを丁寧にみてもらえて、身体が少し楽になった気がする。洋光台駅前で通いやすいので、また利用したいと思う。Next整体KINMAQ 横浜洋光台駅前院。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 9,
+      "language": "ja",
+      "keywords": [
+        "理学療法士の施術",
+        "姿勢・動きの相談"
+      ],
+      "companion": "家族",
+      "gender": "女性",
+      "visitType": "観光",
+      "text": "洋光台の整体で家族と一緒にリフレッシュしました。Next整体KINMAQ 横浜洋光台駅前院では、国家資格を持つ理学療法士に施術してもらい、身体がかなり楽になった感じがします。動き方についてのアドバイスも具体的で役立ちました。安心感を感じることができて、また利用したいと思います。良かったです。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 10,
+      "language": "ja",
+      "keywords": [
+        "長く続く不調の相談",
+        "筋膜整体"
+      ],
+      "companion": "一人",
+      "gender": "男性",
+      "visitType": "地元",
+      "text": "仕事終わりにNext整体KINMAQ 横浜洋光台駅前院に行った。ずっと気になってた不調を相談できたのは良かった。施術は筋膜を意識していて、身体が軽く感じるようになった。整体に通うことを考えているならおすすめだ。行って良かったと思う。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 11,
+      "language": "ja",
+      "keywords": [
+        "洋光台駅前",
+        "肩こり・腰痛の相談",
+        "理学療法士の施術"
+      ],
+      "companion": "友達",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "洋光台の整体に友達と行ってきました。駅前でアクセスが楽で良かったです。肩と腰の不調を理学療法士がしっかり見てくれて、丁寧な施術に安心感がありました。施術後は体が軽くなった実感もあり、また行きたいです。Next整体KINMAQ 横浜洋光台駅前院はおすすめです。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 12,
+      "language": "ja",
+      "keywords": [
+        "姿勢・動きの相談",
+        "長く続く不調の相談"
+      ],
+      "companion": "一人",
+      "gender": "男性",
+      "visitType": "観光",
+      "text": "土曜の夜に整体を受けるため洋光台駅前のNext整体KINMAQへ行きました。自分の姿勢のクセをしっかり見てもらえて、長引く身体の悩みについても丁寧に対応してもらいました。施術後には少し身体が楽になった実感があり、日常生活での動きが改善された気がします。こうした専門的なアプローチを受けられるのはありがたいと思いました。また訪れたいです。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 13,
+      "language": "ja",
+      "keywords": [
+        "筋膜整体",
+        "理学療法士の施術",
+        "洋光台駅前"
+      ],
+      "companion": "恋人",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "仕事帰りに恋人と、洋光台のNext整体KINMAQ駅前院へ行ってきました。施術は理学療法士によるもので、筋膜へのアプローチがとても印象に残りました。身体が軽くなった実感もあり、安心感を得られたのが嬉しかったです。駅前という立地も便利で通いやすいですね。また訪れたいと思いました！",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 14,
+      "language": "ja",
+      "keywords": [
+        "肩こり・腰痛の相談",
+        "長く続く不調の相談"
+      ],
+      "companion": "家族",
+      "gender": "男性",
+      "visitType": "地元",
+      "text": "洋光台の整体に家族と行きました。肩こりや腰痛の相談をしやすく、施術中も自分の状態を詳しく聞いてくれるので安心感がありました。長引く不調についても親身に対応してもらい、少し楽になった実感があります。また訪れたいと思います。",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 15,
+      "language": "en",
+      "keywords": [
+        "洋光台駅前"
+      ],
+      "companion": "一人",
+      "gender": "男性",
+      "visitType": "地元",
+      "text": "I visited Next Seitai KINMAQ near Yokodai Station and had a wonderful experience. The clinic was easy to find and provided a calm atmosphere. I felt rejuvenated afterward. Highly recommend!",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 16,
+      "language": "en",
+      "keywords": [
+        "理学療法士の施術"
+      ],
+      "companion": "友達",
+      "gender": "女性",
+      "visitType": "観光",
+      "text": "I had a wonderful experience at Next Seitai KINMAQ in Yokodai. The licensed physical therapists provided excellent hands-on care, explaining each step clearly. I left feeling rejuvenated. Highly recommend!",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 17,
+      "language": "en",
+      "keywords": [
+        "筋膜整体",
+        "肩こり・腰痛の相談"
+      ],
+      "companion": "恋人",
+      "gender": "男性",
+      "visitType": "地元",
+      "text": "I visited the seitai bodywork clinic in Yokodai with my partner to address stiff shoulders and lower back discomfort. The fascia-focused approach was impressive, and we felt great relief afterward. Highly recommend!",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 18,
+      "language": "en",
+      "keywords": [
+        "姿勢・動きの相談"
+      ],
+      "companion": "一人",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "I visited Next整体KINMAQ in Yokodai for help with my posture and movement habits. The staff provided excellent guidance and support. I left feeling much more aware of my body. Highly recommend!",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 19,
+      "language": "en",
+      "keywords": [
+        "長く続く不調の相談",
+        "理学療法士の施術"
+      ],
+      "companion": "家族",
+      "gender": "男性",
+      "visitType": "観光",
+      "text": "I visited Next Seitai KINMAQ in Yokodai with my family, seeking help for lingering discomfort. The licensed physical therapists provided clear explanations and skilled hands-on care. I left feeling grateful for their expertise. Highly recommend!",
+      "fails": [],
+      "ok": true
+    },
+    {
+      "i": 20,
+      "language": "en",
+      "keywords": [
+        "洋光台駅前",
+        "筋膜整体"
+      ],
+      "companion": "友達",
+      "gender": "女性",
+      "visitType": "地元",
+      "text": "I visited Next Seitai KINMAQ near Yokodai Station with friends and had a wonderful experience. The fascia-focused bodywork was refreshing and relaxing. I will definitely be returning!",
+      "fails": [],
+      "ok": true
+    }
+  ]
+}

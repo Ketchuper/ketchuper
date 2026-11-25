@@ -447,6 +447,89 @@ export const stores: Record<string, StoreConfig> = {
     singlePageLayout: true
   },
 
+  /**
+   * Next整体KINMAQ 横浜洋光台駅前院
+   * 方針: docs/plans/2026-11-25-kinmaq-yokodai-rb-workorder.md
+   * placeId(ChIJ)未確認のため空。Mapsは依頼者共有URL。
+   */
+  "kinmaq-yokodai": {
+    id: "kinmaq-yokodai",
+    name: "Next整体KINMAQ 横浜洋光台駅前院",
+    nameEn: "Next Seitai KINMAQ Yokohama Yokodai",
+    logoPath: "/kinmaq-yokodai-logo.png",
+    googleMapsUrl: "https://share.google/vk67zWd5RHiL3DzZP",
+    placeId: "",
+
+    theme: {
+      primaryColor: "#0A2744",
+      secondaryColor: "#4F8FBF",
+      logoGlow:
+        "drop-shadow(0 0 12px rgba(10, 39, 68, 0.45)) drop-shadow(0 0 24px rgba(79, 143, 191, 0.3))",
+    },
+
+    features: {
+      keywords: {
+        enabled: true,
+        options: {
+          ja: [
+            "洋光台駅前",
+            "理学療法士の施術",
+            "筋膜整体",
+            "肩こり・腰痛の相談",
+            "姿勢・動きの相談",
+            "長く続く不調の相談",
+          ],
+          en: [
+            "Near Yokodai Station",
+            "Treatment by physical therapists",
+            "Fascia-focused seitai",
+            "For stiff shoulders & lower back",
+            "For posture & movement",
+            "For lingering discomfort",
+          ],
+        },
+      },
+      companion: {
+        enabled: true,
+        options: {
+          ja: ["友達", "家族", "恋人", "一人"],
+          en: ["Friends", "Family", "Partner", "Solo"],
+        },
+      },
+      gender: {
+        enabled: true,
+        options: {
+          ja: ["男性", "女性"],
+          en: ["Male", "Female"],
+        },
+      },
+      visitType: {
+        enabled: true,
+        options: {
+          ja: ["地元", "観光"],
+          en: ["Local", "Tourist"],
+        },
+      },
+      staffName: {
+        enabled: false,
+        placeholder: {
+          ja: "",
+          en: "",
+        },
+      },
+      rating: {
+        enabled: true,
+        default: 5,
+      },
+    },
+
+    promptContext: {
+      ja: "横浜市磯子区・洋光台駅前の整体院「Next整体KINMAQ 横浜洋光台駅前院」。国家資格の理学療法士による筋膜整体。肩こり・腰痛・姿勢や動きの相談に対応。整骨院・保険適用・効果保証・料金断定は書かない。",
+      en: "Next Seitai KINMAQ Yokohama Yokodai: a seitai (bodywork) clinic near Yokodai Station in Isogo, Yokohama. Fascia-focused care by licensed physical therapists. Do not invent insurance coverage, guaranteed cures, or prices.",
+    },
+    singlePageLayout: false,
+  },
+
   // マスターテンプレート（新規店舗用のコピー元。質問項目・UIはBARVELと同じ。名前・ロゴ・URL・キーワードだけ差し替えて使う）
   "_template": {
     id: "_template",
