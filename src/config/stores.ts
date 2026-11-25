@@ -490,10 +490,11 @@ export const stores: Record<string, StoreConfig> = {
         },
       },
       companion: {
-        enabled: true,
+        // 整体院では同伴はMEO寄与が薄く、UIもバー寄りのためオフ
+        enabled: false,
         options: {
-          ja: ["友達", "家族", "恋人", "一人"],
-          en: ["Friends", "Family", "Partner", "Solo"],
+          ja: [],
+          en: [],
         },
       },
       gender: {
@@ -504,10 +505,11 @@ export const stores: Record<string, StoreConfig> = {
         },
       },
       visitType: {
-        enabled: true,
+        // 地元／観光は近隣院に不向きのためオフ（地名はプロンプトで毎回「洋光台」）
+        enabled: false,
         options: {
-          ja: ["地元", "観光"],
-          en: ["Local", "Tourist"],
+          ja: [],
+          en: [],
         },
       },
       staffName: {
@@ -524,8 +526,8 @@ export const stores: Record<string, StoreConfig> = {
     },
 
     promptContext: {
-      ja: "横浜市磯子区・洋光台駅前の整体院「Next整体KINMAQ 横浜洋光台駅前院」。国家資格の理学療法士による筋膜整体。肩こり・腰痛・姿勢や動きの相談に対応。整骨院・保険適用・効果保証・料金断定は書かない。",
-      en: "Next Seitai KINMAQ Yokohama Yokodai: a seitai (bodywork) clinic near Yokodai Station in Isogo, Yokohama. Fascia-focused care by licensed physical therapists. Do not invent insurance coverage, guaranteed cures, or prices.",
+      ja: "横浜市磯子区・洋光台駅前の整体院「Next整体KINMAQ 横浜洋光台駅前院」。国家資格の理学療法士による筋膜整体。肩こり・腰痛・姿勢や動きの相談に対応。整骨院・保険適用・効果保証・料金断定は書かない。同伴・地元観光の設定は使わない。",
+      en: "Next Seitai KINMAQ Yokohama Yokodai: a seitai (bodywork) clinic near Yokodai Station in Isogo, Yokohama. Fascia-focused care by licensed physical therapists. Do not invent insurance coverage, guaranteed cures, or prices. Do not invent companions or tourist framing.",
     },
     singlePageLayout: false,
   },

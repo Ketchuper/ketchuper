@@ -414,10 +414,12 @@ ${companionText === "solo" && keywords.includes("スタッフ最高") ? `"Stoppe
 
 【Your Experience】
 - Rating: ${rating} stars
-- Visit type: ${visitTypeEn} (${isKinmaqYokodai
-    ? (visitTypeEn === "local" ? "You live near Yokodai / Yokohama" : "You're visiting the Yokodai / Yokohama area")
-    : (visitTypeEn === "local" ? "You live in Okinawa" : "You're visiting Okinawa for travel")})
+${isKinmaqYokodai
+  ? `- Setting: neighborhood seitai visit in Yokodai (do NOT mention companions, local vs tourist, or vacation travel)
+`
+  : `- Visit type: ${visitTypeEn} (${visitTypeEn === "local" ? "You live in Okinawa" : "You're visiting Okinawa for travel"})
 - Came with: ${companionText}
+`}
 - What you enjoyed: ${keywords.join(", ")}
 ${hasStaff ? `- Favorite staff: ${staffMentionEn}` : ""}
 
@@ -429,7 +431,7 @@ ${strictRulesEn}
 【Good Examples】
 ${goodExamplesEn}
 
-Write ONE complete review following the rules above for a **${companionText} ${visitTypeEn} visit**. NEVER cut off mid-sentence!!!
+Write ONE complete review following the rules above${isKinmaqYokodai ? " for this seitai clinic visit" : ` for a **${companionText} ${visitTypeEn} visit**`}. NEVER cut off mid-sentence!!!
 
 【SUPER IMPORTANT】
 1. Write ONLY in ENGLISH - no Japanese!
@@ -549,7 +551,7 @@ Write ONE complete review following the rules above for a **${companionText} ${v
     : isKinmaqYokodai
     ? {
         storeName: "Next整体KINMAQ 横浜洋光台駅前院",
-        locationContext: isLocal ? "横浜・洋光台周辺在住" : "横浜・洋光台エリアへ来ている",
+        locationContext: "横浜・洋光台の整体を利用した客",
         activityType: "整体",
         mood: "説明が分かりやすく、身体が少し楽になった実感",
         forbiddenWords: ["完治", "治った", "保険", "整骨院", "病院", "医師", "円", "価格", "料金"],
@@ -572,10 +574,14 @@ Write ONE complete review following the rules above for a **${companionText} ${v
     "none": "店名は入れなくても良い（自然な流れ優先）"
   };
 
+  const kinmaqVisitLine = isKinmaqYokodai
+    ? `${params.includeTime ? params.timeContext : ""}${storeSpecificSettings.activityType}を受けに行きました。`
+    : `${params.includeTime ? params.timeContext : ""}${companion}と${storeSpecificSettings.activityType}に行きました。`;
+
   const prompt = `あなたは${isFemale ? "20代後半の女性" : "20代後半の男性"}。${storeSpecificSettings.locationContext}。Googleマップに口コミを書いています。
 
 【訪問内容】
-${params.includeTime ? params.timeContext : ""}${companion}と${storeSpecificSettings.activityType}に行きました。
+${kinmaqVisitLine}
 
 良かった点:
 ${selectedKeywordTexts.map(t => `・${t}`).join("\n")}
@@ -596,7 +602,7 @@ ${styleDescriptions[params.stylePattern]}
 ・店名の配置: ${storeNameInstructions[params.storeNamePosition]}
 ・助詞を省略した口語も自然に（例: ダーツ無料で良い、海きれい）
 ・読点: ${commaDescriptions[params.commaStyle]}
-・冒頭: 毎回違う書き出しで（${companion}と${storeName}に、は使いすぎ。別の表現で）
+・冒頭: 毎回違う書き出しで（${isKinmaqYokodai ? "同伴・地元観光の話は出さない。" : `${companion}と${storeName}に、は使いすぎ。別の表現で`}）
 ${isCebuOcto
   ? `・観光客として。楽しかった体験を。
 ・半日プランの効率性を強調（午後は買い物など他の予定も可能）
@@ -617,7 +623,7 @@ ${isFemale ? "・感謝の気持ちも表現OK" : ""}
 ・「良かった点」に挙げた内容は、それぞれ本文で必ず1回は触れる（言い換え・短く言及でも可。省略は不可）
 ・締めは「音楽好きが集まる場所」「また顔を出したい」など居場所感で終えてよい。ただし「常連が多い」「毎週イベント」など未確認の事実は書かない`
   : isKinmaqYokodai
-  ? `・${isLocal ? "地元民として。通いやすさは言い過ぎない。" : "訪問者として。"}
+  ? `・同伴者（友達・家族・恋人・一人）や地元／観光の話は書かない
 ・業態は整体院。毎回「洋光台」と「整体」を本文に入れる（言い換えて消さない）
 ・整骨院・接骨院・病院・医師・保険適用・完治・治った・再発しない・価格・円・他店比較は禁止
 ・飲み屋・ダーツ・カラオケ・ハシゴ酒などの表現は禁止
@@ -661,13 +667,13 @@ ${keywords.includes("DJ・LIVEイベントが楽しめた") ? `・LIVEの日に$
 ・DJイベントに合わせて` : ""}
 （「${companion}に誘われて行った」は使うなら1回だけ。他を優先。飲み屋向けの書き出しは使わない）`
   : isKinmaqYokodai
-  ? `・洋光台の整体に${companion}と行った
+  ? `・洋光台の整体へ行った
 ・${params.includeTime ? params.timeContext : "仕事終わりに"}整体へ
-・${companion}とNext整体KINMAQへ
-・一人で洋光台の整体を受診した
+・Next整体KINMAQで施術を受けた
 ・整体の相談で洋光台駅前へ
 ・通いやすい整体を探して洋光台へ
-（飲み屋向け・ハシゴ酒の書き出しは使わない。未選択の肩こり・腰痛・理学療法士・筋膜は冒頭にも出さない）`
+・身体の調子が気になって洋光台の整体へ
+（同伴・地元観光の話は出さない。飲み屋向け書き出しも使わない。未選択の肩こり・腰痛・理学療法士・筋膜は冒頭にも出さない）`
   : `・${params.includeTime ? params.timeContext : "週末に"}${companion}と飲んだ
 ・コザで${companion}と遊んだ
 ・ハシゴ酒の締めに寄った
